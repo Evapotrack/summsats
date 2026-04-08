@@ -100,7 +100,11 @@ ipcMain.handle('create-project', async (_e, config: AppConfig) => {
   currentNetworkType = config.networkType;
   currentDataFolder = config.dataFolderPath;
   keychain.storeConfig(JSON.stringify(config));
-  storage.initDataFolder(currentDataFolder);
+  try {
+    storage.initDataFolder(currentDataFolder);
+  } catch (err) {
+    throw new Error(`Cannot create data folder: ${err instanceof Error ? err.message : 'unknown error'}`);
+  }
   const mnemonic = keychain.getSeed();
   if (!mnemonic) throw new Error('No seed');
   const seed = await wallet.mnemonicToSeed(mnemonic);

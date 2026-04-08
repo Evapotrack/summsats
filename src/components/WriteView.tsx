@@ -39,7 +39,7 @@ export function WriteView() {
         placeholder=""
       />
 
-      <div className="mt-4">
+      <div className="mt-4 flex items-center gap-4">
         <button
           onClick={handleSubmit}
           disabled={!draftText.trim()}
@@ -47,6 +47,9 @@ export function WriteView() {
         >
           Submit
         </button>
+        {draftText.length > 50000 && (
+          <span className="text-amber-600 text-xs">Long entry — AI processing may take longer</span>
+        )}
       </div>
     </div>
   );
