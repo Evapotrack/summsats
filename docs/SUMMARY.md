@@ -78,6 +78,21 @@ Route all Bitcoin queries (mempool.space) through Tor for IP-level privacy. Togg
 - **Key Storage:** Electron safeStorage (macOS Keychain)
 - **External APIs:** mempool.space (Bitcoin), api.anthropic.com (AI)
 
+## Who This Is For
+
+- **Long-term research projects.** A PhD student collecting observations across months. Diverse inputs — papers, field notes, hypotheses, data points — processed into a single evolving summary that surfaces connections invisible in scattered notes.
+- **Creative development.** A writer developing a novel, album, or film. Record fragments — character ideas, plot threads, thematic observations — and the AI finds narrative threads across hundreds of entries. The entropy index shows when thinking is diverging (exploring) vs converging (resolving).
+- **Decision journals.** Founders, investors, or anyone making high-stakes decisions over time. Record reasoning as it happens. The immutable chain preserves the full arc — including wrong turns and changed minds. The AI shows how understanding evolved.
+- **Learning and synthesis.** A self-taught developer or researcher reading across disciplines. Record what you learn from each source. The 500-word summary distills cross-domain connections you would not notice manually.
+- **Accountability and intellectual honesty.** The 1,000 sat cost filters noise. The immutability prevents editing out mistakes. The hash chain proves entries existed in order and were never altered. Process over conclusions.
+
+## Who This Is NOT For
+
+- Anyone uncomfortable sending private thoughts to Anthropic's API
+- Anyone needing fast, frictionless note-taking — use Obsidian or Apple Notes
+- Anyone who wants to edit or organize entries — they are immutable
+- Anyone who cannot tolerate the ~10 minute payment wait per entry
+
 ## What This Is Not
 
 - **Not a chat app.** The AI is silent — it processes in the background. You never talk to it.
