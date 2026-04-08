@@ -2,8 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://mempool.space https://api.anthropic.com" />
+    <!-- CSP set dynamically in main process (dev allows unsafe-eval, prod does not) -->
     <title>SummSats</title>
   </head>
   <body>

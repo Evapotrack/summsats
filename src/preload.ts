@@ -53,3 +53,7 @@ contextBridge.exposeInMainWorld('summSats', {
 ipcRenderer.on('app-locked', () => {
   window.dispatchEvent(new CustomEvent('app-locked'));
 });
+
+ipcRenderer.on('tor-fallback', () => {
+  window.dispatchEvent(new CustomEvent('tor-fallback'));
+});

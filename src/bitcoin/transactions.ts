@@ -87,6 +87,5 @@ export async function signAndBroadcast(
   const baseUrl = networkType === 'testnet' ? 'https://mempool.space/testnet/api' : 'https://mempool.space/api';
   const res = await torFetch(`${baseUrl}/tx`, { method: 'POST', body: txHex, headers: { 'Content-Type': 'text/plain' } });
   if (!res.ok) throw new Error(`Broadcast failed: ${await res.text()}`);
-  seed.fill(0);
   return await res.text();
 }

@@ -54,11 +54,13 @@ export async function checkPayment(
   const url = `${getBaseUrl(networkType)}/address/${address}/txs`;
   const res = await torFetch(url);
   if (!res.ok) return { found: false, confirmed: false };
-  const txs: Array<{ txid: string; status: { confirmed: boolean }; vout: Array<{ scriptpubkey_address?: string; value: number }> }> = await res.json();
+  const txs: Array<{ txid: string; status: { confirmed: boolean; block_height?: number }; vout: Array<{ scriptpubkey_address?: string; value: number }> }> = await res.json();
   for (const tx of txs) {
     for (const output of tx.vout) {
       if (output.scriptpubkey_address === address && output.value === expectedAmount) {
-        return { found: true, confirmed: tx.status.confirmed, txid: tx.txid };
+        // Verify block_height exists — don't trust confirmed boolean alone
+        const confirmed = tx.status.confirmed === true && typeof tx.status.block_height === 'number';
+        return { found: true, confirmed, txid: tx.txid };
       }
     }
   }

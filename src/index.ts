@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, clipboard } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, clipboard, session } from 'electron';
 import * as fs from 'fs';
 import * as keychain from './keychain';
 import * as wallet from './bitcoin/wallet';
@@ -60,6 +60,14 @@ const createWindow = (): void => {
       contextIsolation: true, nodeIntegration: false, sandbox: false,
     },
   });
+  // Dynamic CSP: dev allows unsafe-eval (webpack HMR), prod does not
+  const isDev = process.env.NODE_ENV === 'development';
+  const scriptSrc = isDev ? "'self' 'unsafe-eval'" : "'self'";
+  const csp = `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline'; connect-src 'self'`;
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({ responseHeaders: { ...details.responseHeaders, 'Content-Security-Policy': [csp] } });
+  });
+
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.webContents.on('will-navigate', (event, url) => {
     if (!url.startsWith('file://') && !url.includes('webpack')) event.preventDefault();
@@ -268,10 +276,16 @@ ipcMain.handle('build-transaction', async (_e, toAddress: string, amountSats: nu
 
 ipcMain.handle('broadcast-transaction', async (_e, toAddress: string, amountSats: number, feeRate: number) => {
   if (!currentSeed || !currentProject) throw new Error('Not ready');
+  if (amountSats < 546) throw new Error('Amount below dust threshold (546 sats)');
+  if (amountSats <= 0) throw new Error('Amount must be positive');
   const utxos = await utxoModule.fetchAllUtxos(getDerivedAddresses(), currentNetworkType);
   const changeAddr = wallet.deriveChangeAddress(currentSeed, 0, currentNetworkType).address;
   const seedCopy = Buffer.from(currentSeed);
-  return txModule.signAndBroadcast(utxos, toAddress, amountSats, feeRate, changeAddr, seedCopy, currentNetworkType);
+  try {
+    return await txModule.signAndBroadcast(utxos, toAddress, amountSats, feeRate, changeAddr, seedCopy, currentNetworkType);
+  } finally {
+    seedCopy.fill(0);
+  }
 });
 
 // ===== CONFIG =====

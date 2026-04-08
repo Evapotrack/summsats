@@ -83,8 +83,13 @@ export async function torFetch(url: string, options?: { method?: string; body?: 
   }
 
   if (!torAvailable) {
-    // Tor enabled but not running — fall back with console warning
+    // Tor enabled but not running — fall back with warning
     console.warn('[SummSats] Tor enabled but not available on localhost:9050. Falling back to direct connection.');
+    try {
+      const { BrowserWindow } = require('electron');
+      BrowserWindow.getAllWindows().forEach((w: { webContents: { send: (channel: string) => void } }) =>
+        w.webContents.send('tor-fallback'));
+    } catch { /* ignore if not in main process */ }
     const res = await fetch(url, options);
     return { ok: res.ok, status: res.status, text: () => res.text(), json: () => res.json() };
   }
