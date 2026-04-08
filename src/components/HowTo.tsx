@@ -62,7 +62,7 @@ export function HowTo() {
 
         <Section title="How to send sats from your wallet">
           Open the Wallet view. Your accumulated sats from entry payments are shown. When
-          your balance reaches 100,000 sats (100 entries), the send function becomes available.
+          your balance reaches 25,000 sats (25 entries), the send function becomes available.
           Enter a destination address and amount, review the fee, and confirm.
         </Section>
 

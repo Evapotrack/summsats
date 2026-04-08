@@ -32,7 +32,7 @@ export function SettingsView() {
   ];
 
   return (
-    <div className="p-6 max-w-lg">
+    <div className="p-6 max-w-lg mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <h2 className="text-lg font-semibold text-white" style={{ fontFamily: 'Georgia, serif' }}>Settings</h2>
         <HelpLink />

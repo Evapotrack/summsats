@@ -45,7 +45,7 @@ export function SummaryView() {
         {latestEntropy !== null && (
           <div className="flex items-center gap-3">
             <span className="text-gray-500 text-sm">Entropy: {latestEntropy.toFixed(2)}</span>
-            <div className="w-24 h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div className="w-40 h-2 bg-gray-800 rounded-full overflow-hidden">
               <div className="h-full bg-amber-700 rounded-full transition-all" style={{ width: `${(latestEntropy / 8) * 100}%` }} />
             </div>
           </div>

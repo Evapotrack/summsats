@@ -49,7 +49,7 @@ export function WalletView() {
   const canSend = balance >= SEND_THRESHOLD;
 
   return (
-    <div className="p-6 max-w-2xl">
+    <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <h2 className="text-lg font-semibold text-white" style={{ fontFamily: 'Georgia, serif' }}>Wallet</h2>
         <HelpLink />

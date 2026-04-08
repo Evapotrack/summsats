@@ -62,7 +62,7 @@ export function PaymentScreen() {
         <div className="w-full max-w-sm px-8 space-y-6 text-center">
           <div className="flex justify-center">
             <div className="bg-white p-4 rounded-xl">
-              <QRCodeSVG value={bip21} size={200} level="M" />
+              <QRCodeSVG value={bip21} size={200} level="M" title="Bitcoin payment QR code — 1,000 sats" />
             </div>
           </div>
           <div onClick={copyAddress} className="font-mono text-xs text-gray-300 break-all cursor-pointer hover:text-white transition-colors px-2" title="Click to copy">
@@ -75,7 +75,7 @@ export function PaymentScreen() {
             {status === 'confirmed' && <span className="text-white">Confirmed. Processing entry...</span>}
             {status === 'processing' && <span className="text-gray-400">Encrypting and processing...</span>}
           </div>
-          <button onClick={() => setView('write')} className="text-gray-600 hover:text-gray-400 text-xs transition-colors">Cancel</button>
+          <button onClick={() => setView('write')} className="text-gray-500 hover:text-white text-sm transition-colors">&larr; Back to Write</button>
         </div>
       </div>
     </div>
