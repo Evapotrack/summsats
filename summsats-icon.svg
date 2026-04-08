@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#0f0f1a"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Bitcoin symbol (subtle, amber) -->
+  <text x="256" y="220" font-family="Georgia, serif" font-size="160" font-weight="bold" fill="#b45309" text-anchor="middle" dominant-baseline="central" opacity="0.9">&#8383;</text>
+  <!-- Sigma/Sum symbol overlay -->
+  <text x="256" y="350" font-family="Georgia, serif" font-size="100" font-weight="bold" fill="#d4d4d8" text-anchor="middle" dominant-baseline="central" opacity="0.85">&#931;</text>
+  <!-- Subtle chain links (3 small circles) -->
+  <circle cx="180" cy="420" r="8" fill="none" stroke="#b45309" stroke-width="2" opacity="0.4"/>
+  <circle cx="210" cy="420" r="8" fill="none" stroke="#b45309" stroke-width="2" opacity="0.4"/>
+  <circle cx="195" cy="420" r="4" fill="#b45309" opacity="0.3"/>
+</svg>

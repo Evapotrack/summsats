@@ -5,8 +5,10 @@ export function HelpLink() {
   const setView = useSummStore(s => s.setView);
   return (
     <button onClick={() => setView('howto')}
-      className="text-gray-500 hover:text-amber-600 text-xs transition-colors" aria-label="Help">
-      ? Help
+      className="w-6 h-6 rounded-full border border-gray-600 text-gray-500 hover:border-amber-600 hover:text-amber-600 text-xs font-semibold transition-colors flex items-center justify-center shrink-0"
+      aria-label="How To"
+      title="How To">
+      ?
     </button>
   );
 }
