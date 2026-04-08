@@ -641,9 +641,16 @@ section headers. Sections:
     All data encrypted at rest with AES-256-GCM.
 
 ===============================================================================
-REMAINING OPEN QUESTIONS
+DOCUMENTATION
 ===============================================================================
 
-  - Security plan (full spec — to be created when development approaches)
-  - Privacy plan (full spec)
-  - Testing plan
+All open questions have been resolved. Full documentation in docs/:
+
+  - docs/SUMMARY.md — Community-facing project summary with privacy/security section
+  - docs/AI_BEHAVIOR_SPECIFICATION.txt — AI edge cases, validation rules, failure handling
+  - docs/SECURITY_AND_PRIVACY_PLAN.txt — 8 security measures, 10 privacy protections
+  - docs/TESTING_PLAN.md — Pre-release testing checklist organized by severity
+  - docs/HASH_CHAIN_VERIFICATION_GUIDE.txt — Hash chain algorithm with code examples
+  - docs/ECONOMIC_MODEL_SENSITIVITY.txt — Margin stress tests across scenarios
+  - docs/SUMMSATS_NOTEBOOK.txt — Educational overview for study/review
+  - docs/CRITICAL_REVIEW.md — Honest critical review from a Bitcoin researcher perspective
