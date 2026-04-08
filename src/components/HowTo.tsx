@@ -42,7 +42,12 @@ export function HowTo() {
           Falling — thinking is converging toward conclusions{'\n'}
           Plateau — circling similar territory{'\n\n'}
           The entropy value is hashed into your entry chain at each step, making it a
-          permanent, tamper-evident record of how your thinking evolved.
+          permanent, tamper-evident record of how your thinking evolved.{'\n\n'}
+          Note: changing the summary tone in Settings will affect entropy. Educational
+          tone uses structured, predictable vocabulary (lower entropy). Philosophical
+          tone uses abstract, varied vocabulary (higher entropy). If you switch tones
+          mid-project, expect a visible shift in entropy that reflects the writing style
+          change, not necessarily a change in your thinking.
         </Section>
 
         <Section title="What is the hash chain?">

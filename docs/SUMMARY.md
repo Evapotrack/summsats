@@ -30,6 +30,8 @@ Shannon entropy calculated on the binary (UTF-8) representation of the 500-word 
 
 The entropy value is hashed into the chain at each step, making it a permanent record of how your thinking evolved.
 
+Note: switching the summary tone affects entropy indirectly. Educational tone produces structured, predictable vocabulary (lower entropy). Philosophical tone uses abstract, varied vocabulary (higher entropy). A mid-project tone change will cause a visible entropy shift that reflects the writing style, not necessarily your thinking.
+
 ### The Hash Chain
 Each entry hashed with the previous hash and current entropy using SHA-256. Creates a tamper-evident chain — if any entry were changed, the chain breaks from that point forward. Proves your entries existed in a specific order and were never altered.
 
