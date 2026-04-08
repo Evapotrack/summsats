@@ -1,55 +1,32 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSummStore } from '../store/summStore';
 
 export function PaymentScreen() {
-  const { draftText, setDraftText, setView, setEntryCount, setSummary, setEntropyHistory,
-    setChainHashes, setPendingSummaryUpdate, setConfirmationMessage, entryCount } = useSummStore();
+  const { draftText, setDraftText, setView, entryCount, addNotification } = useSummStore();
   const [address, setAddress] = useState('');
-  const [status, setStatus] = useState<'waiting' | 'detected' | 'confirmed' | 'processing'>('waiting');
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     (async () => {
       const { address: addr } = await window.summSats.getEntryAddress();
       setAddress(addr);
-      startPolling(addr);
     })();
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
-  const startPolling = (addr: string) => {
-    const poll = async () => {
-      try {
-        const result = await window.summSats.pollEntryPayment(addr);
-        if (result.confirmed) {
-          if (pollRef.current) clearInterval(pollRef.current);
-          setStatus('confirmed');
-          setTimeout(() => processEntry(), 1000);
-        } else if (result.detected) {
-          setStatus('detected');
-        }
-      } catch { /* ignore polling errors */ }
-    };
-    poll();
-    pollRef.current = setInterval(poll, 15000);
-  };
-
-  const processEntry = async () => {
-    setStatus('processing');
-    try {
-      const result = await window.summSats.commitEntry(draftText);
-      setEntryCount(result.entryCount);
-      setSummary(result.summary);
-      setEntropyHistory(result.entropyHistory);
-      setChainHashes(result.chainHashes);
-      setPendingSummaryUpdate(result.pendingSummaryUpdate);
-      setConfirmationMessage(`Entry #${result.entryNumber} added to your project`);
+  const handleBackToWrite = () => {
+    if (address) {
+      // Create notification and let background polling handle the rest
+      addNotification({
+        id: `entry-${Date.now()}`,
+        entryNumber: entryCount + 1,
+        entryText: draftText,
+        address,
+        timestamp: Date.now(),
+        status: 'pending',
+      });
       setDraftText('');
-      setView('write');
-    } catch {
-      setView('write');
     }
+    setView('write');
   };
 
   const bip21 = address ? `bitcoin:${address}?amount=0.000015` : '';
@@ -69,34 +46,10 @@ export function PaymentScreen() {
             {address}
           </div>
           <div className="text-white text-xl font-semibold">Send 1,500 sats</div>
-          <div className="text-sm">
-            {status === 'waiting' && <span className="text-gray-400">Waiting for payment...</span>}
-            {status === 'detected' && (
-              <div className="space-y-3">
-                <span className="text-amber-600">Transaction detected. Waiting for confirmation...</span>
-                <div className="flex justify-center gap-2 pt-1">
-                  <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.2s' }} />
-                  <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.2s' }} />
-                  <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.2s' }} />
-                </div>
-              </div>
-            )}
-            {status === 'confirmed' && (
-              <div className="space-y-3">
-                <div className="flex justify-center">
-                  <div className="w-16 h-16 rounded-full bg-amber-700/20 flex items-center justify-center">
-                    <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <span className="text-white font-semibold">Confirmed</span>
-                <p className="text-gray-400 text-xs">Processing entry...</p>
-              </div>
-            )}
-            {status === 'processing' && <span className="text-gray-400">Encrypting and processing...</span>}
-          </div>
-          <button onClick={() => setView('write')} className="text-gray-500 hover:text-white text-sm transition-colors">&larr; Back to Write</button>
+          <p className="text-gray-500 text-sm">Send payment, then continue writing. You'll be notified when confirmed.</p>
+          <button onClick={handleBackToWrite} className="w-full py-3 bg-amber-700 hover:bg-amber-600 text-white rounded-lg font-semibold transition-colors">
+            Back to Write
+          </button>
         </div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { EntriesView } from './components/EntriesView';
 import { WalletView } from './components/WalletView';
 import { SettingsView } from './components/SettingsView';
 import { HowTo } from './components/HowTo';
+import { EntryNotifications } from './components/EntryNotifications';
 
 export function App() {
   const { view, setView, setSetupComplete, isUnlocked, setUnlocked, lockApp,
@@ -103,7 +104,10 @@ export function App() {
       <div className="h-8 shrink-0 bg-gray-900" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
       <div className="flex flex-1 min-h-0">
         <Sidebar />
-        <main className="flex-1 overflow-auto">{renderContent()}</main>
+        <main className="flex-1 overflow-auto">
+          <EntryNotifications />
+          {renderContent()}
+        </main>
       </div>
     </div>
   );

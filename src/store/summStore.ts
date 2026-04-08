@@ -30,6 +30,16 @@ interface SummState {
   utxos: UTXO[];
   addressIndex: number;
 
+  // Entry notifications
+  entryNotifications: Array<{
+    id: string;
+    entryNumber: number;
+    entryText: string;
+    address: string;
+    timestamp: number;
+    status: 'pending' | 'detected' | 'processing' | 'confirmed';
+  }>;
+
   // Entry reading
   expandedEntry: number | null;
   readingEntry: { number: number; text: string } | null;
@@ -56,6 +66,9 @@ interface SummState {
   setBalance: (v: number) => void;
   setUtxos: (v: UTXO[]) => void;
   setAddressIndex: (v: number) => void;
+  addNotification: (notif: SummState['entryNotifications'][0]) => void;
+  updateNotification: (id: string, status: SummState['entryNotifications'][0]['status']) => void;
+  removeNotification: (id: string) => void;
   setExpandedEntry: (v: number | null) => void;
   setReadingEntry: (v: SummState['readingEntry']) => void;
   setAutoLockMinutes: (v: number) => void;
@@ -83,6 +96,7 @@ export const useSummStore = create<SummState>((set, get) => ({
   balance: 0,
   utxos: [],
   addressIndex: 0,
+  entryNotifications: [],
   expandedEntry: null,
   readingEntry: null,
   autoLockMinutes: 15,
@@ -106,6 +120,13 @@ export const useSummStore = create<SummState>((set, get) => ({
   setBalance: (balance) => set({ balance }),
   setUtxos: (utxos) => set({ utxos }),
   setAddressIndex: (addressIndex) => set({ addressIndex }),
+  addNotification: (notif) => set(s => ({ entryNotifications: [...s.entryNotifications, notif] })),
+  updateNotification: (id, status) => set(s => ({
+    entryNotifications: s.entryNotifications.map(n => n.id === id ? { ...n, status } : n),
+  })),
+  removeNotification: (id) => set(s => ({
+    entryNotifications: s.entryNotifications.filter(n => n.id !== id),
+  })),
   setExpandedEntry: (expandedEntry) => set({ expandedEntry }),
   setReadingEntry: (readingEntry) => set({ readingEntry }),
   setAutoLockMinutes: (autoLockMinutes) => set({ autoLockMinutes }),
@@ -120,6 +141,7 @@ export const useSummStore = create<SummState>((set, get) => ({
     utxos: [],
     paymentAddress: null,
     paymentStatus: 'idle',
+    entryNotifications: [],
     expandedEntry: null,
     readingEntry: null,
     view: 'lock',
