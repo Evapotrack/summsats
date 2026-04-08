@@ -1,0 +1,347 @@
+================================================================================
+SUMMSATS — SECURITY AND PRIVACY PLAN
+Full specification of security measures and privacy protections
+Creator: Andrew Brown
+Date: April 6, 2026
+Status: Pre-development — plan ready for implementation
+================================================================================
+
+PURPOSE
+
+This document closes the open question identified in the SummSats concept
+document: "Security plan (full spec — to be created when development
+approaches)" and "Privacy plan (full spec)." It covers every attack surface,
+every data flow that leaves the device, and every protection the app provides.
+
+SummSats has a unique security profile. It sends user-written content to
+the Anthropic API and holds private keys. The app handles three sensitive
+asset types: Bitcoin private keys, encrypted personal thoughts, and
+AI-processed text sent to a third party.
+
+
+================================================================================
+SECTION 1 — DATA CLASSIFICATION
+================================================================================
+
+CRITICAL (compromise = catastrophic loss):
+    - 12-word BIP39 seed phrase (controls wallet + all encryption keys)
+    - Derived private keys (exist only transiently during signing)
+
+SENSITIVE (compromise = significant privacy violation):
+    - Entry text (raw user thoughts, ideas, research, decisions)
+    - 500-word summary (AI-distilled version of all entries)
+    - Hash chain (proves what was written and when)
+    - Entropy history (reveals thinking patterns over time)
+
+INTERNAL (compromise = operational disruption):
+    - Anthropic API key (could be used to run up API charges)
+    - App password hash (could allow unauthorized app access)
+    - Vault configuration (auto-lock timer, folder path, network choice)
+
+PUBLIC (no sensitivity):
+    - App source code (open source)
+    - Bitcoin addresses used for entry payments (visible on-chain)
+
+
+================================================================================
+SECTION 2 — SECURITY MEASURES
+================================================================================
+
+SEED AND KEY MANAGEMENT:
+
+    SK1: Seed generation uses crypto.randomBytes(16) for 128 bits of entropy
+         from the OS CSPRNG. Never Math.random().
+
+    SK2: Seed stored encrypted via Electron safeStorage (macOS Keychain).
+         Never stored in .env files, code, logs, or any other location.
+
+    SK3: Seed displayed once during setup. User verifies by re-entering 3
+         randomly selected words. Never displayed again after setup.
+
+    SK4: Private keys derived on demand for signing operations only. Keys
+         exist in the main process memory only during the signing call.
+         Zeroed from memory immediately after use. Renderer process never
+         has access to key material.
+
+    SK5: Unique seed for this app. Compromise of one app's seed does not
+         expose others.
+
+APP ACCESS:
+
+    AA1: Password required on app launch. Password stored as a salted hash
+         in safeStorage using scryptSync. Never stored in plaintext.
+         Comparison uses timingSafeEqual to prevent timing attacks.
+
+    AA2: Auto-lock timer re-locks the app after inactivity. Duration set by
+         user during setup (no default — user must choose intentionally).
+         On lock: clear all sensitive state from Zustand, clear clipboard
+         if it contains an address.
+
+    AA3: Three independent security layers:
+         Layer 1 — Password gates app access
+         Layer 2 — Seed protects encryption of all stored data
+         Layer 3 — 1,000 sat Bitcoin payment gates each new entry
+
+ENTRY ENCRYPTION:
+
+    EE1: Each entry encrypted individually with AES-256-GCM using a key
+         derived via HKDF from the HD seed + a unique entry identifier.
+         Compromise of one entry's ciphertext does not expose other entries.
+
+    EE2: Entries compressed with zlib before encryption. Compress then
+         encrypt on commit. Decrypt then decompress on read. Compression
+         is always on — no user setting.
+
+    EE3: Summary, entropy history, and hash chain data all encrypted at
+         rest with their own HKDF-derived keys.
+
+    EE4: On-disk filenames are sequential numbers (001.enc, 002.enc). No
+         content information leaked through filenames.
+
+BITCOIN:
+
+    BT1: Fresh BIP84 address derived per entry payment. No address reuse.
+         Each address marked as used after payment confirms or expires.
+
+    BT2: 1 confirmation on Bitcoin base chain required for every entry
+         payment. No 0-conf. No override. Enforced in main process IPC.
+
+    BT3: Strict exact amount matching: 1,000 sats. Below: rejected. Above:
+         rejected. Rejected payments received by wallet but do not trigger
+         entry processing.
+
+    BT4: Replay protection: each txid logged. Same txid cannot pay for two
+         entries. Enforced in main process.
+
+    BT5: Address validation on wallet send: toOutputScript + network prefix
+         check. No dust amounts, no negative amounts, no exceeding balance
+         minus fee.
+
+    BT6: Fee ceiling default 100 sat/vB on wallet sends. Full transaction
+         detail displayed before broadcast (inputs, outputs, fee, totals).
+
+    BT7: Send function disabled below 100,000 sat threshold (100 entries).
+         Prevents accidental drain of small accumulated amounts.
+
+ELECTRON HARDENING:
+
+    EH1: contextIsolation: true, nodeIntegration: false. Preload script
+         for all IPC. Renderer never has direct Node.js access.
+
+    EH2: Block navigation to external URLs. Block new window creation.
+         Electron fuses hardened: RunAsNode disabled, CookieEncryption
+         enabled, NodeOptions disabled, CLI inspect disabled.
+
+    EH3: Content Security Policy:
+         default-src 'self';
+         script-src 'self';
+         style-src 'self' 'unsafe-inline';
+         connect-src 'self' https://mempool.space https://api.anthropic.com
+
+    EH4: No remote content loaded in the renderer. mempool.space and
+         Anthropic API calls made from the main process only.
+
+    EH5: No webviews, no iframes, no external content of any kind in the
+         renderer.
+
+    EH6: Single instance lock via app.requestSingleInstanceLock(). Two
+         instances accessing the same data folder would corrupt the
+         encrypted index files.
+
+    EH7: ASAR integrity. App code packaged in asar archive. No secrets
+         stored in asar or bundled files.
+
+    EH8: npm audit before each release. All dependency versions pinned in
+         package-lock.json. Manual review of all dependencies — this app
+         handles signing authority.
+
+
+================================================================================
+SECTION 3 — PRIVACY PLAN
+================================================================================
+
+DATA THAT LEAVES THE DEVICE:
+
+    Two external connections exist. Both are necessary. Both are documented
+    to the user in the How To section and in the README.
+
+    Connection 1 — Anthropic API (api.anthropic.com):
+        What is sent:
+            - Current 500-word summary (if it exists)
+            - Last 10 full entry texts
+            - New entry text
+            - System prompt (static, contains no user data)
+        What is NOT sent:
+            - Seed phrase or any key material
+            - Wallet balance, UTXOs, or addresses
+            - Entry numbers, timestamps, or dates
+            - Hash chain data or entropy values
+            - Password or API key (API key is in the auth header, not in
+              the message content)
+            - Folder path, app settings, or any metadata
+        Retention: subject to Anthropic's data retention policy. As of
+            April 2026, Anthropic does not train on API inputs by default,
+            but policies may change. The user should review Anthropic's
+            current privacy policy.
+        Frequency: once per new entry (after payment confirms)
+        Risk: if Anthropic's systems are breached, the attacker could access
+            the user's recent entry content and current summary. They would
+            NOT have access to the full entry history (only last 10 are sent),
+            the hash chain, the wallet, or any encryption keys.
+
+    Connection 2 — mempool.space:
+        What is sent:
+            - Bitcoin address queries (to verify entry payments)
+            - UTXO queries (to fetch wallet balance)
+            - Fee estimation queries
+            - Transaction broadcast (when user sends from wallet)
+        What is NOT sent:
+            - Entry text, summary, or any non-Bitcoin data
+            - App metadata, settings, or user identity
+        Retention: subject to mempool.space's logging policies. The operator
+            can see which addresses are queried from which IP.
+        Frequency: every 15 seconds during payment waiting. On app launch
+            and after sends for balance refresh.
+        Risk: mempool.space operator can correlate address queries from the
+            same IP to build a profile of entry frequency and wallet balance.
+            Fresh address per entry prevents single-address tracking.
+
+PRIVACY PROTECTIONS:
+
+    PP1: Minimum data to Anthropic API. Only the summary + last 10 entries +
+         new entry are sent. No metadata, no timestamps, no identifiers.
+         The API call is stateless — Anthropic does not know which user is
+         calling or that the data comes from a SummSats app.
+
+    PP2: Fresh Bitcoin address per entry payment. No address reuse. An
+         observer watching mempool.space cannot link entry payments by
+         address pattern.
+
+    PP3: Clipboard auto-clears 60 seconds after copying any address or txid.
+
+    PP4: No analytics, no telemetry, no crash reporting. No Sentry, no
+         Google Analytics, no Electron crash reporter. The app phones home
+         only to mempool.space and api.anthropic.com.
+
+    PP5: No real seeds, entry content, or personal data in code, comments,
+         tests, or documentation.
+
+    PP6: .gitignore covers: data folder contents, encrypted files, seed
+         files, config files, temp files, logs, node_modules, .env.
+
+    PP7: Git history audit before open source release. Use git-secrets or
+         trufflehog to scan for any committed secrets.
+
+    PP8: No cross-references to other projects in public-facing content
+         (README, in-app text, comments).
+
+    PP9: On app lock: clear all entry text, summary, entropy, and wallet
+         data from Zustand state. Sensitive data exists in memory only while
+         the app is unlocked.
+
+    PP10: Structured local logs (if implemented for debugging) must NEVER
+          contain: seed, keys, entry text, summary text, addresses, amounts,
+          API keys, or passwords. Log only operational events (e.g., "entry
+          committed", "AI call succeeded", "payment confirmed") with no
+          content.
+
+FUTURE PRIVACY ENHANCEMENTS (deferred):
+
+    - Local LLM option: replace Anthropic API with a locally-run model.
+      Eliminates Connection 1 entirely. Tradeoff: requires significant
+      local compute and model quality may be lower than Haiku.
+
+    - Tor routing: route mempool.space queries through Tor. Eliminates
+      IP-level correlation. Tradeoff: adds latency to payment verification.
+
+    - Custom Esplora backend: run your own Bitcoin node and Esplora instance.
+      Eliminates mempool.space dependency entirely.
+
+
+================================================================================
+SECTION 4 — ANTHROPIC API BREACH ANALYSIS
+================================================================================
+
+Scenario: Anthropic's systems are breached and an attacker accesses stored
+API request data.
+
+What the attacker gets:
+    - The user's current 500-word summary at the time of each entry
+    - The last 10 entry texts at the time of each entry
+    - The new entry text for each entry
+    - The system prompt (static, no user data)
+
+What the attacker does NOT get:
+    - The full entry history (only the most recent 10 are in any single call)
+    - Any entry older than the 10th most recent (unless it was included in
+      the summary's compressed representation)
+    - The hash chain or entropy history
+    - The seed phrase, wallet keys, or any encryption keys
+    - The user's identity, IP address, or location (unless Anthropic logged
+      these, which is outside the app's control)
+    - The user's Bitcoin addresses or wallet balance
+    - The user's password or API key content (API key is in headers, but
+      headers may or may not be stored by Anthropic)
+
+Impact assessment:
+    - Privacy violation: HIGH — the attacker can read the user's recent
+      thoughts, ideas, and project direction. This is personal intellectual
+      content.
+    - Financial risk: NONE — no wallet or key data is sent to Anthropic.
+    - Encryption risk: NONE — local encryption keys are not derivable from
+      API data.
+    - Historical completeness: PARTIAL — the attacker sees snapshots of the
+      evolving summary and rolling windows of 10 entries, not the complete
+      history. Early entries that have been compressed out of the summary
+      and rotated out of the 10-entry window are not recoverable from API
+      logs.
+
+Mitigation:
+    - The app minimizes data sent per call (summary + 10 entries, not full
+      history)
+    - The user can review Anthropic's data retention and privacy policies
+      before providing an API key
+    - The deferred local LLM option eliminates this risk entirely
+
+
+================================================================================
+SECTION 5 — THREAT SUMMARY
+================================================================================
+
+CRITICAL THREATS:
+    - Seed extraction from macOS Keychain (requires Mac login access)
+      Mitigation: safeStorage + auto-lock.
+    - Supply chain attack via compromised npm package
+      Mitigation: CSP + dependency audit + version pinning.
+
+HIGH THREATS:
+    - Anthropic API breach exposes recent entry content
+      Mitigation: minimum data sent, rolling window, no full history.
+    - Entry text visible to Anthropic during normal operation
+      Mitigation: inherent to the design. Documented to user. Local LLM
+      deferred as future option.
+
+MEDIUM THREATS:
+    - mempool.space IP correlation reveals entry frequency
+      Mitigation: fresh addresses per entry. Tor deferred.
+    - Password brute force on app launch
+      Mitigation: scryptSync hashing (computationally expensive to brute
+      force). Consider rate limiting after N failed attempts.
+
+LOW THREATS:
+    - On-chain analysis links entry payments (if wallet is consolidated)
+      Mitigation: consolidation is user-initiated and warned.
+
+UNIQUE TO SUMMSATS:
+    - Entry text sent to third-party API — this is the primary privacy
+      tradeoff. It is inherent to the app's core function. The user must
+      be comfortable with Anthropic processing their entry content.
+    - API key storage — the Anthropic API key is a credential that must be
+      protected. Stored in safeStorage, never in plaintext.
+
+
+================================================================================
+Document created: April 6, 2026
+Creator: Andrew Brown
+All rights reserved.
+================================================================================

@@ -1,0 +1,378 @@
+================================================================================
+SUMMSATS — EDUCATIONAL REFERENCE
+What, How, When, Where, Why — Complete App Overview
+Source material for Google NotebookLM — optimized for educational audio
+Creator: Andrew Brown
+Date: April 6, 2026
+================================================================================
+
+ABOUT THIS DOCUMENT
+
+This document explains the SummSats app from every angle: what it does, how
+it works, why it was built, where it fits in the Bitcoin and AI landscape,
+and what can be learned from its design. It is structured for Google
+NotebookLM to generate educational audio summaries, Q&A, and study material.
+
+The app's full technical specification is in the Claude Code Prompt Document
+(SUMMSATS_CLAUDE_CODE_PROMPT.md). The original concept document is
+SUMMSATS_CONCEPT.md. This document is the explanation. Those documents are
+the build plans.
+
+
+================================================================================
+TOPIC 1: WHAT IS SUMMSATS?
+================================================================================
+
+SummSats is a macOS desktop application that combines Bitcoin micropayments
+with AI-assisted thinking. The user writes entries about a project — ideas,
+research, observations, decisions, creative fragments, anything — and pays
+1,000 sats (roughly $0.60 at $60,000 per Bitcoin) per entry. Each entry is
+encrypted, hashed into a tamper-evident chain, and stored locally. An AI
+model (Claude Haiku by Anthropic) silently processes each new entry against
+the accumulated context and maintains a continuously evolving 500-word
+summary that captures patterns, connections, contradictions, and conclusions
+across everything the user has written.
+
+The app is a thinking tool, not a chat interface. The user never messages the
+AI directly. They write into their project. The AI works in the background.
+The output is a single page — 500 words — that gets denser and more refined
+with every entry, forcing the AI to prioritize what matters most.
+
+One project per app. Pay to think. Read for free.
+
+
+================================================================================
+TOPIC 2: HOW DOES IT WORK?
+================================================================================
+
+The user experience has five main flows:
+
+SETUP: On first launch, the app generates a 12-word BIP39 seed phrase and
+displays it for the user to write down. The user verifies by re-entering
+three randomly selected words. Then they configure the app: set a password,
+enter their Anthropic API key, choose testnet or mainnet, set the auto-lock
+timer, and pick a folder for encrypted data storage.
+
+WRITING AN ENTRY: The default view is a blank text area with an entry number
+and a submit button. Nothing else. The user types whatever is relevant to
+their project — there is no character limit and no guidance. When they click
+Submit, the app navigates to a payment screen showing a QR code and a Bitcoin
+address. The user opens any Bitcoin wallet on their phone and sends exactly
+1,000 sats. The app polls the Bitcoin network every 15 seconds. When the
+payment is detected and confirmed with one confirmation (approximately 10
+minutes), the entry is compressed with zlib, encrypted with AES-256-GCM
+using a key derived from the HD seed, hashed into the tamper-evident chain,
+and stored locally. Then the AI processes the entry and updates the summary.
+
+READING THE SUMMARY: The Summary view shows four things: the 500-word
+summary text, the total entry count, the entropy index (a number between 0
+and 8 measuring the informational diversity of the summary), and an Export
+button that saves the summary as a plain text file for free. That is all.
+No dates, no graphs, no metadata. The summary requires a minimum of two
+entries before it is generated — the AI needs at least two inputs to find
+patterns between ideas.
+
+BROWSING ENTRIES: Entries are listed chronologically, oldest first. Clicking
+an entry shows a 25-character preview. Clicking "Read Full Entry" opens the
+complete text in a read-only panel. Entries are immutable — once paid and
+confirmed, they cannot be edited or deleted.
+
+MANAGING THE WALLET: The app accumulates sats from entry payments in its own
+HD wallet. The user can view their balance and UTXOs. When the balance
+reaches 100,000 sats (100 entries), the send function becomes available and
+the user can transfer sats to an external address.
+
+
+================================================================================
+TOPIC 3: WHAT IS THE ENTROPY INDEX?
+================================================================================
+
+The entropy index is a single number between 0 and 8 calculated using Shannon
+entropy on the binary (UTF-8) representation of the 500-word summary. It
+measures the informational density and diversity of the summary's content.
+English text typically falls between 4.0 and 5.0.
+
+The calculation is pure math — approximately 10 lines of code. No AI, no
+Bitcoin, no external dependency. It counts the frequency of each byte value
+in the summary text and computes the negative sum of each probability
+multiplied by its logarithm base 2.
+
+What the entropy number means:
+
+Higher entropy (toward 8) means the summary contains diverse topics, varied
+vocabulary, and more tension between different ideas coexisting in 500 words.
+The user's thinking is broad and divergent.
+
+Lower entropy (toward 0) means the summary is focused, uses repetitive
+language, and centers on fewer ideas. The user's thinking is converging.
+
+The trajectory over time is what matters most. Rising entropy signals that
+thinking is diverging and pulling in new threads. Falling entropy signals
+convergence toward conclusions. A plateau suggests the user is circling
+similar territory.
+
+The entropy value is not just a display metric. It is hashed into the
+tamper-evident chain at each step, making it a permanent cryptographic record
+of how the project's informational density evolved over time. The entropy
+value at entry N cannot be retroactively changed without breaking the hash
+chain from that point forward.
+
+
+================================================================================
+TOPIC 4: WHAT IS THE HASH CHAIN?
+================================================================================
+
+Every entry is hashed using SHA-256 together with the previous entry's hash
+and the Shannon entropy of the current summary. This creates a linked chain
+where each entry's cryptographic identity depends on every entry before it.
+
+The chain construction follows a specific sequence:
+
+Entry 1 has no predecessor and no entropy yet, so its hash is simply the
+SHA-256 of its own text. Entry 2 is hashed with its text plus entry 1's
+hash — the summary is just being generated for the first time, so entropy
+is not yet included. Entry 3 is the first to include entropy: its hash is
+computed from its text, entry 2's hash, and the entropy value of the summary
+after entry 2 was processed. Every subsequent entry follows this pattern.
+
+If anyone modified the text of any entry — even changing a single character —
+the hash for that entry would change, which would change the hash for the
+next entry, which would cascade through the entire chain. The chain is
+tamper-evident: you cannot change history without leaving a visible trace.
+
+The hash chain's integrity does not depend on the AI. If the AI fails to
+update the summary (network error, rate limit, malformed response), the
+entry is still committed and hashed normally. The summary can lag behind the
+chain without breaking its integrity. This separation is deliberate — the
+permanent record of what was written (the chain) must never be compromised
+by a transient AI failure.
+
+An optional future feature would anchor the latest hash to the Bitcoin
+blockchain via a 32-byte OP_RETURN output. This would make the chain
+verifiable against the most secure timestamping system ever built — proving
+not just what was written, but when, anchored to Bitcoin's proof of work.
+
+
+================================================================================
+TOPIC 5: WHY DOES EACH ENTRY COST 1,000 SATS?
+================================================================================
+
+The 1,000 sat payment serves three purposes: economic friction, self-funding,
+and identity.
+
+Economic friction is the primary purpose. If recording a thought cost nothing,
+everything would be dumped in. Free notes apps prove this — people accumulate
+thousands of disorganized notes. The 1,000 sat cost (roughly $0.60) is small
+enough to be affordable for regular use but large enough to make the user
+pause and ask: "Is this thought worth preserving?" Over time, the entries
+become curated and high-signal because each one passed a real economic filter.
+
+Self-funding is the second purpose. The AI processing for each entry costs
+approximately 1-3 sats (Claude Haiku at ~8,000 input tokens). The 1,000 sat
+payment creates a 500x margin. The app collects sats in its own wallet while
+the developer pays the Anthropic API bill separately. At 150 entries per year
+(3 per week), the app collects 150,000 sats while the AI costs approximately
+450 sats. This economic model is viable at any usage level.
+
+Identity is the third purpose. Without Bitcoin, SummSats would be a nice
+encrypted journal with AI summarization — a category with competitors. With
+Bitcoin, it becomes a sovereignty tool where every thought costs something
+real, proves it existed through a tamper-evident chain, and accumulates value
+in a self-custodied wallet. The Bitcoin layer makes it interesting and
+different. It gives the app an identity that no non-Bitcoin alternative can
+replicate.
+
+The concept document includes an honest assessment: Bitcoin's value here is
+more philosophical than practical. The core functionality (encrypted entries,
+AI summaries, hash chain) would technically work without Bitcoin. But the
+economic friction is genuine — no "confirm" dialog replicates the experience
+of spending real sats — and the self-funding model only works because Bitcoin
+enables micropayments to a self-custodied wallet with no intermediary.
+
+
+================================================================================
+TOPIC 6: HOW DOES THE AI PROCESSING WORK?
+================================================================================
+
+The AI model is Claude Haiku, the smallest and cheapest model in Anthropic's
+Claude family. It is chosen specifically because it is cheap (making the 500x
+margin possible) and because the task — compressing and summarizing user-
+written text — does not require the reasoning power of larger models.
+
+On each new entry, the AI receives three inputs: the current 500-word summary
+(if it exists), the last 10 full entry texts, and the new entry text. It
+produces one output: an updated 500-word summary. The total input is
+approximately 6,000 words (roughly 8,000 tokens). This cost stays flat
+forever regardless of the total number of entries, because only the most
+recent 10 are sent along with the rolling summary.
+
+The system prompt constrains the AI strictly. It must respond with only the
+updated summary — no preamble, no commentary. Exactly 500 words. It must
+draw only from the entries and existing summary, never adding outside
+knowledge. It prioritizes connections between entries over recurring themes,
+recurring themes over recent developments, recent developments over
+contradictions, and contradictions over older context that has not evolved.
+It writes in third person with a neutral tone.
+
+The AI is silent. The user never sees a chat interface. They write, pay, and
+the summary updates. The AI is infrastructure, not an interlocutor.
+
+A critical constraint: the AI builds the summary ONLY from the user's
+entries. No general knowledge. No outside information. The summary reflects
+the user's thinking, not the AI's. If the user writes about quantum computing
+and gets something wrong, the summary reflects the wrong understanding. The
+AI does not correct it. This is deliberate — the tool captures what the user
+thinks, not what is objectively true.
+
+
+================================================================================
+TOPIC 7: HOW IS SUMMSATS SECURED?
+================================================================================
+
+The app has three independent security layers:
+
+Layer 1: A password protects app access. The password is stored as a salted
+hash in the macOS Keychain via Electron's safeStorage. It is never stored in
+plaintext.
+
+Layer 2: A 12-word BIP39 seed phrase protects all encryption. Every entry,
+the summary, the entropy history, and the hash chain are encrypted at rest
+with AES-256-GCM using keys derived from the seed via HKDF. Each entry has
+its own encryption key derived from the master key plus a unique entry
+identifier.
+
+Layer 3: A 1,000 sat Bitcoin payment protects each new entry. No entry is
+committed without a confirmed on-chain payment.
+
+The Electron application is hardened following best practices: context
+isolation enabled, no Node.js integration in the renderer,
+external navigation blocked, Content Security Policy set, Electron fuses
+hardened, single instance lock, and dependencies audited with versions pinned.
+
+The app is a hot wallet — it holds private keys and signs transactions
+internally. It does not display a persistent "hot wallet" warning because
+the wallet is incidental (a piggy bank of entry payments, not deliberate
+holdings). But the same security considerations apply: private keys exist
+in memory during signing operations and are zeroed immediately after use.
+
+
+================================================================================
+TOPIC 8: WHAT PRIVACY TRADEOFFS EXIST?
+================================================================================
+
+SummSats has a notable privacy tradeoff: entry content is sent to Anthropic's
+API for AI processing. This is inherent to the app's core
+function and cannot be avoided without switching to a local LLM (deferred
+feature).
+
+What Anthropic receives: the current summary, the last 10 entries, and the
+new entry text. What Anthropic does not receive: the seed, wallet data,
+timestamps, entry numbers, hash chain data, entropy values, or any metadata.
+
+The risk is that if Anthropic's systems were breached, an attacker could read
+the user's recent thoughts and project direction. However, they would not
+have access to the full entry history (only the most recent 10 entries are in
+any single API call), the wallet, or any encryption keys. They could not
+decrypt the locally stored entries or derive the seed.
+
+The only other external connection is to mempool.space for payment
+verification. This reveals only Bitcoin addresses and comes from the user's
+IP. Fresh addresses per entry prevent single-address tracking, but IP-level
+correlation is possible until Tor routing is implemented (deferred).
+
+The app includes no analytics, no telemetry, and no crash reporting.
+
+
+================================================================================
+TOPIC 9: WHAT IS THE PHILOSOPHY BEHIND SUMMSATS?
+================================================================================
+
+SummSats builds understanding from thoughts, verified by Bitcoin. It combines
+Bitcoin AND AI with viable economics: Bitcoin gates the input (1,000 sats per
+entry) and AI processing is a cheap side effect (approximately 2 sats per
+entry via Claude Haiku).
+
+The philosophy: tools for people who want to own their own data and their own
+ideas — stored on their own hardware, dependent on no one.
+
+
+================================================================================
+TOPIC 10: WHAT CAN BE LEARNED FROM THIS PROJECT?
+================================================================================
+
+Five specific lessons emerge from the SummSats design:
+
+First, AI becomes economically viable when it is a side effect rather than
+the product. SummSats collects 1,000 sats per entry and spends 2 sats on AI — a 500x
+margin that works at any usage level. The lesson: do not charge for AI
+processing. Charge for something the user values (a committed thought) and
+include AI processing in the cost.
+
+Second, economic friction as a UX pattern is novel and testable. Whether
+paying 1,000 sats per entry actually improves the quality of recorded
+thoughts — whether it filters signal from noise — is a hypothesis that real
+usage will validate or disprove. No existing product tests this pattern with
+real economic cost (as opposed to psychological friction like confirmation
+dialogs).
+
+Third, the 500-word summary constraint is a non-trivial prompt engineering
+problem. Maintaining a fixed-length evolving summary across unlimited inputs
+requires careful design around what to preserve, compress, and drop. The
+summary must get denser over time without losing important context from early
+entries. This is a pattern that transfers to any application needing rolling
+AI summarization of accumulating data.
+
+Fourth, hash chain construction with entropy as a structural element teaches
+tamper-evident data structures — a foundational cryptography concept applied
+to personal data. The inclusion of Shannon entropy in the chain makes the
+informational state of the summary at each point in time permanently
+verifiable. This is a novel construction that could be applied to other
+evolving-document scenarios.
+
+Fifth, starting narrow based on prior project experience produces better
+outcomes. SummSats was designed from the start with one core function (write,
+pay, summarize), one project per app, no earning methods, no Lightning, and
+minimal wallet features. This scope discipline produced a design that is
+focused, buildable, and honest about what it does and does not do.
+
+
+================================================================================
+SOURCE DOCUMENTS
+================================================================================
+
+SUMMSATS_CONCEPT.md — Original concept document with all design decisions,
+economic model, hash chain specification, AI processing detail, honest
+Bitcoin assessment, and operational details.
+
+SUMMSATS_CLAUDE_CODE_PROMPT.md — Complete development reference (11 sections)
+with architecture, system prompt, file structure, screens, security, and
+development checklist. Designed for Claude Code sessions.
+
+SECURITY_AND_PRIVACY_PLAN.txt — Full security and privacy specification
+including Anthropic API breach analysis.
+
+TESTING_PLAN.txt — Comprehensive test cases (8 catastrophic, 8 severe,
+8 moderate, 6 minor) with procedures and pass/fail criteria.
+
+AI_BEHAVIOR_SPECIFICATION.txt — Edge cases, validation rules, word count
+enforcement, and long-term summary behavior analysis.
+
+HASH_CHAIN_VERIFICATION_GUIDE.txt — Standalone guide for independently
+verifying hash chain integrity, with the exact algorithm, Shannon entropy
+calculation code (Python and JavaScript), and step-by-step procedures.
+
+ECONOMIC_MODEL_SENSITIVITY.txt — Stress-test of the economic model under
+varying Bitcoin prices, API pricing changes, token counts, and usage patterns.
+Includes corrected margin analysis and worst-case scenario modeling.
+
+This document (SUMMSATS_NOTEBOOK.txt) — Educational overview for Google
+NotebookLM. Covers what, how, why, where, and lessons learned.
+
+The code will be open source at github.com/Evapotrack/summsats.
+
+
+================================================================================
+Document created: April 6, 2026
+Creator: Andrew Brown
+All rights reserved.
+================================================================================

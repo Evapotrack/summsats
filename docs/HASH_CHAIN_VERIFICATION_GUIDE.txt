@@ -1,0 +1,248 @@
+================================================================================
+SUMMSATS — HASH CHAIN VERIFICATION GUIDE
+How to independently verify the integrity of your entry chain
+Creator: Andrew Brown
+Date: April 6, 2026
+================================================================================
+
+PURPOSE
+
+This document explains how to verify that your SummSats hash chain is intact —
+that no entry has been modified, deleted, or reordered since it was committed.
+Verification can be done by anyone with access to the decrypted entry data,
+using standard tools available on any computer.
+
+
+================================================================================
+WHAT THE HASH CHAIN IS
+================================================================================
+
+Every SummSats entry is linked to the one before it through a SHA-256 hash.
+Each hash is computed from three inputs: the entry's text, the previous
+entry's hash, and the Shannon entropy of the summary at that point in the
+chain. If any entry were changed — even by a single character — its hash
+would change, and every hash after it would also change. The chain proves
+that entries exist in a specific order and have not been altered.
+
+
+================================================================================
+THE EXACT ALGORITHM
+================================================================================
+
+The hash for each entry is computed as follows:
+
+    Entry 1:
+        hash_1 = SHA-256( entry_1_text )
+
+    Entry 2:
+        hash_2 = SHA-256( entry_2_text + hash_1 )
+
+        Note: Entry 2 does NOT include entropy. The summary is generated
+        for the first time after entry 2, so entropy has not been calculated
+        yet at the time entry 2 is hashed.
+
+    Entry 3:
+        hash_3 = SHA-256( entry_3_text + hash_2 + entropy_after_entry_2 )
+
+        This is the first entry to include entropy. "entropy_after_entry_2"
+        is the Shannon entropy of the summary as it existed after entry 2
+        was processed.
+
+    Entry N (for N >= 3):
+        hash_N = SHA-256( entry_N_text + hash_(N-1) + entropy_after_entry_(N-1) )
+
+CONCATENATION: The inputs are concatenated as UTF-8 strings. The hash value
+is represented as a lowercase hexadecimal string (64 characters for SHA-256).
+The entropy value is represented as a decimal string with full precision
+(e.g., "4.732891045623178").
+
+So for entry 4, the input to SHA-256 would be:
+
+    [entry 4 text][64-char hex hash of entry 3][entropy decimal string after entry 3]
+
+No separators between the components. No newlines. No spaces. Just
+concatenation of the raw strings.
+
+
+================================================================================
+HOW TO CALCULATE SHANNON ENTROPY
+================================================================================
+
+Shannon entropy is calculated on the binary (UTF-8) representation of the
+500-word summary text. The formula is:
+
+    H = - SUM( p(x) * log2(p(x)) ) for each byte value x that appears
+
+Where p(x) is the probability of byte value x, calculated as:
+
+    p(x) = count(x) / total_bytes
+
+Step by step:
+
+    1. Take the summary text as a UTF-8 byte sequence.
+    2. Count the total number of bytes.
+    3. For each unique byte value (0-255), count how many times it appears.
+    4. For each byte value that appears at least once, calculate:
+       p = count / total_bytes
+       contribution = p * log2(p)
+    5. Sum all contributions.
+    6. Negate the sum (entropy is the negative of the sum).
+
+The result is a number between 0 and 8. For English text, typical values
+are 4.0-5.0.
+
+EXAMPLE IN PYTHON:
+
+    import math
+    from collections import Counter
+
+    def shannon_entropy(text):
+        byte_data = text.encode('utf-8')
+        total = len(byte_data)
+        if total == 0:
+            return 0.0
+        counts = Counter(byte_data)
+        entropy = 0.0
+        for count in counts.values():
+            p = count / total
+            entropy -= p * math.log2(p)
+        return entropy
+
+EXAMPLE IN JAVASCRIPT (Node.js):
+
+    function shannonEntropy(text) {
+        const bytes = Buffer.from(text, 'utf-8');
+        const total = bytes.length;
+        if (total === 0) return 0;
+        const counts = {};
+        for (const byte of bytes) {
+            counts[byte] = (counts[byte] || 0) + 1;
+        }
+        let entropy = 0;
+        for (const count of Object.values(counts)) {
+            const p = count / total;
+            entropy -= p * Math.log2(p);
+        }
+        return entropy;
+    }
+
+
+================================================================================
+HOW TO VERIFY YOUR CHAIN
+================================================================================
+
+PREREQUISITES:
+
+    - Access to your decrypted entries (either through the app's Entries view,
+      or by decrypting the .enc files directly with your seed)
+    - The hash chain data (array of hashes, one per entry)
+    - The entropy history data (array of entropy values, one per entry)
+    - A SHA-256 tool (available on any Mac via the command line, or in any
+      programming language)
+
+STEP-BY-STEP VERIFICATION:
+
+    Step 1: Export or record the text of each entry, the stored hash for
+    each entry, and the stored entropy value for each entry.
+
+    Step 2: Verify Entry 1.
+        Compute: SHA-256( entry_1_text )
+        Compare with stored hash_1.
+        If they match: Entry 1 is verified.
+
+    Step 3: Verify Entry 2.
+        Compute: SHA-256( entry_2_text + hash_1 )
+        Where hash_1 is the VERIFIED hash from Step 2 (not the stored one —
+        use the one you just computed).
+        Compare with stored hash_2.
+        If they match: Entry 2 is verified.
+
+    Step 4: Verify Entry 3.
+        First, verify the entropy value:
+        - Take the summary as it existed after entry 2 was processed.
+        - Calculate Shannon entropy using the formula above.
+        - Compare with stored entropy_after_2.
+        Then compute: SHA-256( entry_3_text + hash_2 + entropy_string )
+        Where entropy_string is the entropy value as a decimal string.
+        Compare with stored hash_3.
+
+    Step 5: Continue for all remaining entries, each time using the hash
+    you computed (not the stored hash) for the previous entry.
+
+    If every computed hash matches the stored hash, the chain is intact.
+    If any hash does not match, the chain is broken at that point — either
+    the entry text, a previous hash, or the entropy value has been modified.
+
+USING THE COMMAND LINE (Mac):
+
+    To compute SHA-256 of a string on macOS:
+
+        echo -n "your text here" | shasum -a 256
+
+    The -n flag is important — it prevents echo from adding a newline.
+
+    For concatenated inputs:
+
+        echo -n "entry text here64charhexhash4.732891045623178" | shasum -a 256
+
+    The output will be a 64-character hexadecimal string followed by " -".
+    The hash is just the 64-character hex part.
+
+
+================================================================================
+WHAT A BROKEN CHAIN LOOKS LIKE
+================================================================================
+
+If you modify entry 5's text and recompute:
+
+    hash_5_new = SHA-256( modified_entry_5_text + hash_4 + entropy_after_4 )
+
+    hash_5_new will NOT match the stored hash_5.
+
+    Furthermore, if you try to verify entry 6:
+
+    hash_6_check = SHA-256( entry_6_text + hash_5_new + entropy_after_5 )
+
+    This will NOT match stored hash_6, because hash_5_new is different from
+    the original hash_5 that was used when entry 6 was originally hashed.
+
+    The break cascades forward through every subsequent entry.
+
+This means:
+    - You can identify EXACTLY which entry was modified (the first one where
+      the computed hash does not match the stored hash).
+    - Every entry BEFORE the break point is verified as authentic.
+    - Every entry AFTER the break point is suspect (their hashes depend on
+      the modified entry).
+
+
+================================================================================
+LIMITATIONS
+================================================================================
+
+The hash chain proves entries have not been modified since they were committed.
+It does NOT prove:
+
+    - WHEN entries were written (unless anchored to Bitcoin via OP_RETURN,
+      which is a deferred feature). Without on-chain anchoring, the chain
+      proves order and integrity but not calendar time.
+
+    - WHO wrote the entries. The chain is tied to a seed phrase, not to an
+      identity. Anyone with the seed could have written any entry.
+
+    - That the entry text accurately represents reality. The chain proves
+      what was written, not whether it was true.
+
+The entropy values in the chain add an additional dimension: they prove what
+the SUMMARY looked like at each point in time (its informational density).
+But the summary itself is not stored in the chain — only its entropy.
+Two different summaries could theoretically have the same entropy value.
+The entropy is a fingerprint of the summary's statistical properties, not
+its content.
+
+
+================================================================================
+Document created: April 6, 2026
+Creator: Andrew Brown
+All rights reserved.
+================================================================================

@@ -1,0 +1,538 @@
+================================================================================
+SUMMSATS — TESTING PLAN
+Comprehensive test cases organized by severity
+Creator: Andrew Brown
+Date: April 6, 2026
+Status: Pre-development — test cases ready for execution when code is testable
+================================================================================
+
+PURPOSE
+
+This document closes the open question identified in the SummSats concept
+document: "Testing plan." It defines every test case organized by severity,
+with specific procedures and pass/fail criteria. SummSats has a unique testing
+surface because it combines Bitcoin payments, file encryption, AI processing,
+and hash chain integrity in a single application.
+
+
+================================================================================
+CATASTROPHIC TESTS (C1-C8) — Loss of entries, funds, or chain integrity
+================================================================================
+
+All catastrophic tests must pass before any mainnet activity.
+
+--------------------------------------------------------------------------------
+C1: ENTRY LOST AFTER PAYMENT
+--------------------------------------------------------------------------------
+What this tests: A paid and confirmed entry is never lost. The payment-to-
+storage pipeline is atomic — once the blockchain confirms payment, the entry
+must be encrypted, hashed, and stored.
+
+Procedure:
+    1. Write an entry and submit. Send 1,000 sats.
+    2. Wait for 1 confirmation.
+    3. Verify: entry appears in the Entries view with correct text.
+    4. Close the app completely (Cmd+Q).
+    5. Relaunch. Unlock with password.
+    6. Verify: entry still present in Entries view.
+    7. Repeat steps 1-6 for 5 consecutive entries.
+    8. Verify: all 5 entries present after restart, in correct order.
+
+Pass: Zero entries lost after confirmed payment across multiple restarts.
+Fail: Any confirmed entry missing or corrupted after restart.
+
+--------------------------------------------------------------------------------
+C2: SUMMARY CORRUPTION
+--------------------------------------------------------------------------------
+What this tests: The summary is a valid 500-word text that accurately
+reflects the user's entries, and does not become corrupted over time.
+
+Procedure:
+    1. Submit 2 entries with clearly distinct topics (e.g., entry 1 about
+       cooking, entry 2 about astronomy).
+    2. Verify: first summary generated. Check it references both topics.
+    3. Count words in the summary. Must be exactly 500.
+    4. Submit 10 more entries on varied topics.
+    5. After each entry, verify the summary updates and remains 500 words.
+    6. Close and relaunch the app after every 3rd entry.
+    7. After all 12 entries: export the summary. Verify the exported .txt
+       file matches what is displayed in the Summary view.
+
+Pass: Summary is always exactly 500 words. Reflects entry content accurately.
+Survives restarts. Export matches display.
+Fail: Word count deviates from 500. Summary contains AI-generated content
+not derived from entries. Summary does not update. Export differs from display.
+
+--------------------------------------------------------------------------------
+C3: HASH CHAIN BREAK
+--------------------------------------------------------------------------------
+What this tests: The hash chain maintains integrity — modifying any entry
+would cause the chain to break from that point forward.
+
+Procedure:
+    1. Submit 5 entries. Record the hash for each entry.
+    2. Verify: hash(entry_1_text) produces consistent result.
+    3. Verify: hash(entry_2_text + entry_1_hash) matches stored hash for
+       entry 2.
+    4. Verify: hash(entry_3_text + entry_2_hash + entropy_after_2) matches
+       stored hash for entry 3.
+    5. Continue verification for entries 4 and 5.
+    6. Independently calculate each hash outside the app (using a SHA-256
+       tool) to confirm the app's hash function matches standard SHA-256.
+    7. If possible (via dev tools or code modification), attempt to modify
+       entry 2's stored text. Verify: recalculating the chain from entry 2
+       forward produces different hashes, demonstrating tampering is
+       detectable.
+
+Pass: All hashes match independent calculation. Chain is deterministic.
+Tampering detection works.
+Fail: Any hash mismatch between app and independent calculation. Chain
+does not detect simulated tampering.
+
+--------------------------------------------------------------------------------
+C4: SEED RESTORE FAILURE
+--------------------------------------------------------------------------------
+What this tests: Full backup/restore cycle preserves all entries, summary,
+hash chain, entropy history, and wallet balance.
+
+Procedure:
+    1. Create a project on testnet. Submit at least 5 entries.
+    2. Record: seed phrase, entry count, summary text, latest entropy value,
+       wallet balance.
+    3. Copy the data folder to an external location (backup).
+    4. Completely delete the app and all app data:
+       - Delete app from /Applications
+       - Delete ~/Library/Application Support/[app-name]/
+       - Delete the original data folder
+       - Empty Trash
+    5. Reinstall the app.
+    6. Choose "Restore Existing Project."
+    7. Enter the 12-word seed.
+    8. Point to the backed-up data folder.
+    9. Verify:
+       a) All entries present with correct text and correct order
+       b) Summary matches what was recorded
+       c) Entropy history preserved
+       d) Hash chain intact (verify at least 2 hashes)
+       e) Wallet balance matches or is close (blockchain scan)
+
+Pass: Complete restoration. All data intact. Chain verified.
+Fail: Any entries missing, summary different, chain broken, or wallet
+balance incorrect.
+
+--------------------------------------------------------------------------------
+C5: PAYMENT CONFIRMS BUT ENTRY NOT COMMITTED
+--------------------------------------------------------------------------------
+What this tests: The app handles the critical window between payment
+confirmation and entry storage.
+
+Procedure:
+    1. Submit an entry and send 1,000 sats.
+    2. Immediately after the payment is detected (but before/during
+       confirmation), force-quit the app.
+    3. Wait for the transaction to confirm on-chain.
+    4. Relaunch the app.
+    5. Check: is the entry committed?
+    6. If not committed: is the draft preserved? Is the payment recognized
+       as wallet balance?
+    7. If committed: verify entry is correct and hash chain intact.
+
+Pass: Either (a) entry committed successfully despite crash, or (b) entry
+not committed but draft preserved and sats safe in wallet. User can resubmit.
+Fail: Entry lost AND draft lost AND sats sent. Or entry committed with
+corrupted data.
+
+--------------------------------------------------------------------------------
+C6: ENCRYPTION KEY DETERMINISM
+--------------------------------------------------------------------------------
+What this tests: Same seed + same entry identifier always produces the same
+encryption key. Required for restore to work.
+
+Procedure:
+    Create entries, uninstall, reinstall, restore from seed, verify all
+    entries decrypt correctly.
+
+Pass: All entries decrypt correctly after full uninstall/reinstall/restore.
+Fail: Any entry fails to decrypt after restore with correct seed.
+
+--------------------------------------------------------------------------------
+C7: WALLET BALANCE OVERFLOW
+--------------------------------------------------------------------------------
+What this tests: The wallet send function prevents overdraft, dust, negative,
+and zero amounts.
+
+Procedure:
+    Test full balance, balance minus 1, zero, negative, dust (below 546),
+    exact dust threshold, and valid amount.
+    Additionally: verify send is disabled below 100,000 sat threshold with
+    correct message.
+
+Pass: All boundary cases caught. Threshold enforced. Clear error messages.
+Fail: Any invalid amount reaches broadcast. Threshold not enforced.
+
+--------------------------------------------------------------------------------
+C8: TRANSACTION TO WRONG ADDRESS
+--------------------------------------------------------------------------------
+What this tests: Address validation catches all invalid and mismatched
+addresses.
+
+Procedure:
+    Test mainnet address on testnet, invalid checksum, legacy format,
+    empty string, random text, truncated, extended.
+
+Pass: Only valid testnet addresses accepted. All others rejected with
+clear error messages.
+Fail: Any invalid address passes validation.
+
+
+================================================================================
+SEVERE TESTS (S1-S8) — Security bypass or data exposure
+================================================================================
+
+--------------------------------------------------------------------------------
+S1: PAYMENT WITHOUT ENTRY COMMIT
+--------------------------------------------------------------------------------
+What this tests: A payment cannot trigger entry processing for an entry
+that was not submitted.
+
+Procedure:
+    1. Do NOT submit any entry (Write view is empty or has a draft).
+    2. Send 1,000 sats to the wallet's most recently derived address.
+    3. Wait for confirmation.
+    4. Verify: no new entry is created. Sats received as wallet balance.
+
+Pass: Payment received but no phantom entry created.
+Fail: An empty or phantom entry appears in the entries list.
+
+--------------------------------------------------------------------------------
+S2: API KEY EXPOSURE FROM RENDERER
+--------------------------------------------------------------------------------
+What this tests: The Anthropic API key is not accessible from the renderer
+process.
+
+Procedure:
+    1. Open developer tools (dev build).
+    2. Inspect window API object. Search for any property containing the
+       API key string.
+    3. Inspect Zustand store for API key data.
+    4. Monitor network tab during an entry submission — verify the API call
+       is made from the main process, not the renderer.
+    5. Search renderer source (bundled JS) for the API key value.
+
+Pass: API key not accessible from renderer by any method. API calls made
+from main process only.
+Fail: API key visible in renderer console, store, network tab, or source.
+
+--------------------------------------------------------------------------------
+S3: SEED ACCESSIBLE FROM RENDERER
+--------------------------------------------------------------------------------
+What this tests: The seed phrase and private keys are never accessible from
+the renderer process.
+
+Procedure:
+    Inspect preload API, Zustand store, IPC handlers, console output,
+    and network tab for any key material.
+
+Pass: Zero key material accessible from renderer.
+Fail: Any seed, mnemonic, or private key data accessible.
+
+--------------------------------------------------------------------------------
+S4: DUPLICATE TXID ACCEPTANCE
+--------------------------------------------------------------------------------
+What this tests: The same transaction cannot pay for two entries.
+
+Procedure:
+    1. Submit entry #1. Pay 1,000 sats. Record the txid.
+    2. Entry #1 committed successfully.
+    3. Submit entry #2. A new address is generated.
+    4. Attempt to associate the old txid with the new entry payment
+       (via code inspection or developer tools if possible).
+    5. Verify: old txid rejected. New payment required.
+
+Pass: Old txid rejected for new entry.
+Fail: Old txid accepted for a second entry.
+
+--------------------------------------------------------------------------------
+S5: WRONG AMOUNT ACCEPTANCE
+--------------------------------------------------------------------------------
+What this tests: Only exactly 1,000 sats triggers entry processing.
+
+Procedure:
+    1. Submit an entry.
+    2. Send 999 sats to the displayed address. Wait for confirmation.
+    3. Verify: entry NOT committed. Sats received by wallet.
+    4. Submit a new entry (or resubmit the same one).
+    5. Send 1,001 sats to the new address. Wait for confirmation.
+    6. Verify: entry NOT committed. Sats received by wallet.
+    7. Submit again. Send exactly 1,000 sats. Wait for confirmation.
+    8. Verify: entry committed successfully.
+
+Pass: Only 1,000 sats triggers entry commit. 999 and 1,001 both rejected.
+Fail: Any non-exact amount triggers entry processing.
+
+--------------------------------------------------------------------------------
+S6: PASSWORD BYPASS
+--------------------------------------------------------------------------------
+What this tests: The app cannot be accessed without the correct password.
+
+Procedure:
+    1. Close and relaunch the app.
+    2. At the password prompt, enter incorrect passwords 5 times.
+    3. Verify: all rejected with clear error message.
+    4. Attempt to bypass the password screen via developer tools (if
+       accessible without password).
+    5. Verify: no app content accessible without correct password.
+    6. Enter correct password.
+    7. Verify: app unlocks normally.
+
+Pass: All incorrect passwords rejected. No bypass possible. Correct
+password works.
+Fail: Any incorrect password accepted. Any bypass route exists.
+
+--------------------------------------------------------------------------------
+S7: ENTRY IMMUTABILITY
+--------------------------------------------------------------------------------
+What this tests: Committed entries cannot be edited or deleted through the UI.
+
+Procedure:
+    1. Submit and pay for 3 entries.
+    2. In the Entries view, attempt to:
+       a) Edit entry text (click on text, try typing)
+       b) Delete an entry (right-click, look for delete option)
+       c) Modify entry text via developer tools / Zustand store
+    3. Verify: no edit or delete capability exists in the UI.
+    4. If modification was achieved via developer tools, verify the hash
+       chain detects the tampering (hashes no longer match).
+
+Pass: No edit or delete capability in UI. Developer-level modifications
+detectable via hash chain.
+Fail: Entries editable or deletable through normal UI interaction.
+
+--------------------------------------------------------------------------------
+S8: AI RESPONSE INJECTION
+--------------------------------------------------------------------------------
+What this tests: A malformed AI response does not corrupt the summary or
+inject unintended content.
+
+Procedure (requires ability to mock API responses):
+    1. Submit an entry.
+    2. Intercept the AI response and replace it with:
+       a) A response with 600 words (over the 500 limit)
+       b) A response with preamble: "Sure! Here is the summary: ..."
+       c) A response containing HTML/script tags
+       d) An empty response
+       e) A response that is valid JSON but not text content
+    3. For each malformed response, verify:
+       a) The app rejects the response
+       b) The app retries once
+       c) If retry also fails, the summary is NOT updated
+       d) The entry is still committed (payment was already confirmed)
+       e) The hash chain is intact
+       f) No injected content appears in the UI
+
+Pass: All malformed responses rejected. No summary corruption. No UI
+injection. Entry survives. Chain intact.
+Fail: Malformed response accepted as valid summary. Or injected content
+renders in UI.
+
+
+================================================================================
+MODERATE TESTS (M1-M8) — Functionality failures
+================================================================================
+
+--------------------------------------------------------------------------------
+M1: AI CALL FAILURE HANDLING
+--------------------------------------------------------------------------------
+Procedure:
+    1. Submit an entry. Before the AI call is made (after payment confirms),
+       block api.anthropic.com at the network level.
+    2. Verify: entry committed (encrypted, hashed, stored). Summary NOT
+       updated. Warning appears: "Summary pending update — AI processing
+       will retry."
+    3. Entry count increments normally.
+    4. Restore network. Submit the next entry.
+    5. Verify: AI processes the queued update along with the new entry.
+       Summary updates to reflect both entries.
+
+Pass: Entry survives AI failure. Summary queued for retry. Recovery on
+next successful call.
+Fail: Entry lost on AI failure. Or summary never recovers.
+
+--------------------------------------------------------------------------------
+M2: DRAFT PRESERVATION ON APP CLOSE
+--------------------------------------------------------------------------------
+Procedure:
+    1. Type a long entry in the Write view (500+ words).
+    2. Click Submit. Payment screen appears.
+    3. Close the app (Cmd+Q) before payment is sent.
+    4. Relaunch. Enter password.
+    5. Verify: Write view shows the draft with message "You have an unsaved
+       draft. Submit to continue."
+    6. Verify: draft text is complete and unmodified.
+
+Pass: Full draft preserved. Message displayed. User can resubmit.
+Fail: Draft lost. Or draft truncated/corrupted.
+
+--------------------------------------------------------------------------------
+M3: MEMPOOL.SPACE UNAVAILABLE
+--------------------------------------------------------------------------------
+Procedure:
+    Block mempool.space, verify error message on
+    payment screen, verify app does not crash, verify stale wallet data
+    shown with error indicator, verify recovery on reconnect.
+
+Pass: Graceful degradation. Clear messages. No crash. Recovery.
+Fail: Crash, false data, or unrecoverable state.
+
+--------------------------------------------------------------------------------
+M4: ENTROPY CALCULATION CONSISTENCY
+--------------------------------------------------------------------------------
+Procedure:
+    1. Submit 5 entries. Record the entropy value after each.
+    2. Independently calculate Shannon entropy on the binary UTF-8
+       representation of each summary using a known implementation.
+    3. Compare app values with independent calculations.
+    4. Verify: values match to at least 2 decimal places.
+    5. Verify: entropy is always between 0 and 8.
+
+Pass: App entropy matches independent calculation. Values in valid range.
+Fail: Any mismatch. Or value outside 0-8 range.
+
+--------------------------------------------------------------------------------
+M5: SUMMARY WORD COUNT ENFORCEMENT
+--------------------------------------------------------------------------------
+Procedure:
+    1. Submit 20 entries, each with very different content lengths (from
+       single sentences to 2,000-word essays).
+    2. After each entry, count words in the summary.
+    3. Verify: every summary is exactly 500 words.
+    4. If any summary deviates, check the retry logic: the app should
+       reject non-500-word responses and retry once.
+
+Pass: All 20 summaries are exactly 500 words.
+Fail: Any summary deviates from exactly 500 words after retry.
+
+--------------------------------------------------------------------------------
+M6: APP CLOSE DURING AI PROCESSING
+--------------------------------------------------------------------------------
+Procedure:
+    1. Submit an entry. Payment confirms. AI call begins.
+    2. Force-quit the app during the AI call.
+    3. Relaunch.
+    4. Verify: entry is committed (paid for, encrypted, hashed).
+    5. Verify: summary may be stale (from before the interrupted call).
+    6. Verify: summary queued for retry (warning message shown).
+    7. Submit the next entry. Verify summary updates normally.
+
+Pass: Entry safe. Summary retries on next opportunity. No corruption.
+Fail: Entry lost. Or summary corrupted. Or app in unrecoverable state.
+
+--------------------------------------------------------------------------------
+M7: WALLET SEND THRESHOLD
+--------------------------------------------------------------------------------
+Procedure:
+    1. With wallet balance below 100,000 sats (e.g., after 50 entries =
+       50,000 sats), attempt to send from the Wallet view.
+    2. Verify: send is disabled with message "Minimum 100,000 sats to send
+       (currently [balance] sats)."
+    3. Continue submitting entries until balance reaches 100,000 sats.
+    4. Verify: send function becomes available.
+    5. Send a valid amount. Verify transaction succeeds.
+
+Pass: Threshold enforced. Send disabled below. Send enabled at/above.
+Fail: Send available below threshold. Or send disabled at/above threshold.
+
+--------------------------------------------------------------------------------
+M8: CONCURRENT ENTRY SUBMISSION
+--------------------------------------------------------------------------------
+Procedure:
+    1. Submit entry A. Payment screen shown.
+    2. Without completing payment for A, attempt to navigate to Write view
+       and submit entry B.
+    3. Verify: app prevents double submission (either blocks navigation to
+       Write during pending payment, or queues the second entry).
+    4. No index corruption, no duplicate hashes, no chain break.
+
+Pass: Double submission prevented or safely handled. No corruption.
+Fail: Two entries with the same hash, corrupted chain, or index corruption.
+
+
+================================================================================
+MINOR TESTS (U1-U6) — Edge cases and polish
+================================================================================
+
+--------------------------------------------------------------------------------
+U1: EMPTY ENTRY SUBMISSION
+--------------------------------------------------------------------------------
+Procedure: Click Submit with an empty text area.
+Expected: Submit button disabled or error "Entry cannot be empty."
+
+--------------------------------------------------------------------------------
+U2: VERY LONG ENTRY
+--------------------------------------------------------------------------------
+Procedure: Paste a 50,000-word entry. Submit and pay.
+Expected: Entry accepted, encrypted, and stored. AI processes normally
+(only the entry text + summary + last 10 entries sent to API). No crash,
+no truncation of stored entry.
+
+--------------------------------------------------------------------------------
+U3: SPECIAL CHARACTERS IN ENTRY TEXT
+--------------------------------------------------------------------------------
+Procedure: Submit entries containing: unicode characters, emoji, RTL text
+(Arabic/Hebrew), code blocks with angle brackets, null bytes, newlines,
+and tab characters.
+Expected: All characters preserved in storage and display. No rendering
+issues. No injection into UI.
+
+--------------------------------------------------------------------------------
+U4: DENOMINATION TOGGLE
+--------------------------------------------------------------------------------
+Procedure: Switch between sats and BTC in Settings. Verify all Bitcoin
+amount displays update: sidebar balance, wallet balance, UTXO list, send
+section, payment screen amount.
+
+--------------------------------------------------------------------------------
+U5: SUMMARY EXPORT
+--------------------------------------------------------------------------------
+Procedure: Export summary as .txt. Open the file in TextEdit. Verify: plain
+text, exactly 500 words, matches the displayed summary. No encryption, no
+metadata, no extra formatting.
+
+--------------------------------------------------------------------------------
+U6: ENTRIES VIEW ACCORDION
+--------------------------------------------------------------------------------
+Procedure: With 20+ entries, click entry 5 to expand. Verify 25-character
+preview shown. Click entry 10. Verify entry 5 collapses and entry 10
+expands. Click "Read Full Entry" on entry 10. Verify full text shown in
+read-only panel. Verify no editing capability in the read panel.
+
+
+================================================================================
+EXECUTION NOTES
+================================================================================
+
+Test Environment:
+    - All tests on testnet first, always.
+    - Use testnet faucet for payments.
+    - Record results in a test log: date, test ID, result, notes.
+    - Screenshot or screen record failures.
+
+Retest Policy:
+    - After fixing any failure: rerun that test + all tests in same tier.
+    - After any change to encryption, chain, or AI processing: rerun ALL
+      catastrophic tests.
+    - After any change to payment handling: rerun C1, C5, S4, S5.
+
+Pre-Mainnet Gate:
+    All C1-C8 must PASS.
+    All S1-S8 must PASS.
+    All M1-M8 must PASS.
+    All U1-U6 must PASS.
+    Zero open failures at any severity level.
+
+
+================================================================================
+Document created: April 6, 2026
+Creator: Andrew Brown
+All rights reserved.
+================================================================================
