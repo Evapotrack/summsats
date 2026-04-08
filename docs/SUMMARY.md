@@ -36,8 +36,14 @@ Each entry hashed with the previous hash and current entropy using SHA-256. Crea
 ### Immutable Entries
 Once paid, entries cannot be edited or deleted. Wrong turns and contradictions are preserved. The AI sees your full arc of thinking, including mistakes, and surfaces how your understanding changed. Process, not just conclusions.
 
+### Summary Tone Selection
+Choose how the AI writes your summary: **Educational** (structured, analytical), **Reflective** (introspective, personal), or **Philosophical** (abstract, probing). Switch anytime in Settings — the tone applies to the next summary update. Previous summaries are not regenerated.
+
 ### Bitcoin Wallet
-The app accumulates sats from entry payments in its own HD wallet. When balance reaches 100,000 sats (100 entries), you can send to an external address with full transaction detail displayed before broadcast.
+The app accumulates sats from entry payments in its own HD wallet. When balance reaches 25,000 sats (25 entries), you can send to an external address with full transaction detail displayed before broadcast.
+
+### Optional Tor Routing
+Route all Bitcoin queries (mempool.space) through Tor for IP-level privacy. Toggle in Settings — requires Tor running on localhost:9050. Falls back to direct connection if Tor is unavailable.
 
 ## Why It Was Made
 
@@ -81,7 +87,7 @@ The app accumulates sats from entry payments in its own HD wallet. When balance 
 
 ## Status
 
-V1 — core app functional. Testnet ready. Open source planned after testing and review.
+V2 — core app functional with tone selection and Tor routing. Testnet ready. Open source planned after testing and review.
 
 Similar projects may exist — I have not researched the space. This was built to explore the concept.
 
@@ -130,7 +136,7 @@ This project was built using Claude Code on a 2025 MacBook Air. It is an experim
 - **Anthropic processes your entry text.** This is inherent to the app's core function. Each entry's content is sent for AI processing. If this is unacceptable, do not use the app. Local LLM support is a deferred feature.
 - **This is a hot wallet.** Private keys exist on a general-purpose computer. Keep amounts small.
 - **Physical access to an unlocked Mac.** If someone has your login and the app is running, they may access entries or extract the seed from Keychain.
-- **mempool.space is a trusted dependency.** IP-level correlation of entry frequency is possible until Tor routing is implemented.
+- **mempool.space is a trusted dependency.** IP-level correlation of entry frequency is possible. Tor routing (Settings toggle) mitigates this if Tor is running locally.
 - **API key compromise.** If your Anthropic API key is stolen (from Keychain extraction or memory), the attacker could run up API charges. They cannot access your entries — the key authenticates API requests, not decrypt data.
 
 ### Electron hardening
