@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useSummStore } from '../store/summStore';
 import { HelpLink } from './HelpLink';
 
-const SEND_THRESHOLD = 100_000;
+const SEND_THRESHOLD = 25_000;
 
 export function WalletView() {
   const { balance, setBalance, formatAmount, utxos, setUtxos } = useSummStore();
