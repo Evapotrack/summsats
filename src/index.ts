@@ -158,7 +158,7 @@ ipcMain.handle('get-entry-address', async () => {
 });
 
 ipcMain.handle('poll-entry-payment', async (_e, address: string) => {
-  const result = await utxoModule.checkPayment(address, 1000, currentNetworkType);
+  const result = await utxoModule.checkPayment(address, 1500, currentNetworkType);
   if (result.found && result.confirmed && result.txid) {
     if (currentProject && currentProject.usedTxids.includes(result.txid)) {
       return { confirmed: false };

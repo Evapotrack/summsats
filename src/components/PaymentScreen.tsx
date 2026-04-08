@@ -52,7 +52,7 @@ export function PaymentScreen() {
     }
   };
 
-  const bip21 = address ? `bitcoin:${address}?amount=0.00001` : '';
+  const bip21 = address ? `bitcoin:${address}?amount=0.000015` : '';
   const copyAddress = async () => { if (address) await window.summSats.copyToClipboard(address); };
 
   return (
@@ -62,13 +62,13 @@ export function PaymentScreen() {
         <div className="w-full max-w-sm px-8 space-y-6 text-center">
           <div className="flex justify-center">
             <div className="bg-white p-4 rounded-xl">
-              <QRCodeSVG value={bip21} size={200} level="M" title="Bitcoin payment QR code — 1,000 sats" />
+              <QRCodeSVG value={bip21} size={200} level="M" title="Bitcoin payment QR code — 1,500 sats" />
             </div>
           </div>
           <div onClick={copyAddress} className="font-mono text-xs text-gray-300 break-all cursor-pointer hover:text-white transition-colors px-2" title="Click to copy">
             {address}
           </div>
-          <div className="text-white text-xl font-semibold">Send 1,000 sats</div>
+          <div className="text-white text-xl font-semibold">Send 1,500 sats</div>
           <div className="text-sm">
             {status === 'waiting' && <span className="text-gray-400">Waiting for payment...</span>}
             {status === 'detected' && (

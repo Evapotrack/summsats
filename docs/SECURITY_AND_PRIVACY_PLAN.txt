@@ -80,7 +80,7 @@ APP ACCESS:
     AA3: Three independent security layers:
          Layer 1 — Password gates app access
          Layer 2 — Seed protects encryption of all stored data
-         Layer 3 — 1,000 sat Bitcoin payment gates each new entry
+         Layer 3 — 1,500 sat Bitcoin payment gates each new entry
 
 ENTRY ENCRYPTION:
 
@@ -106,7 +106,7 @@ BITCOIN:
     BT2: 1 confirmation on Bitcoin base chain required for every entry
          payment. No 0-conf. No override. Enforced in main process IPC.
 
-    BT3: Strict exact amount matching: 1,000 sats. Below: rejected. Above:
+    BT3: Strict exact amount matching: 1,500 sats. Below: rejected. Above:
          rejected. Rejected payments received by wallet but do not trigger
          entry processing.
 

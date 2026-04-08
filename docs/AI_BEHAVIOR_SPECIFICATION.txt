@@ -168,7 +168,7 @@ meaning, the summary should remain largely unchanged from the previous
 version, noting only that a brief affirmative entry was made.
 
 App enforcement: The app does not enforce a minimum entry length. The user
-paid 1,000 sats for "Yes." — that is their choice. The entry is committed
+paid 1,500 sats for "Yes." — that is their choice. The entry is committed
 and hashed normally.
 
 VERY LONG ENTRIES:
@@ -288,7 +288,7 @@ SECTION 6 — API CONFIGURATION
 MODEL: claude-haiku-4-5-20251001
     Always Haiku. Never Sonnet. Never Opus. Haiku is chosen for cost (~1-3
     sats per entry). Sonnet or Opus would increase cost by 10-50x and
-    eliminate the 500x margin that makes the economic model work.
+    eliminate the 750x margin that makes the economic model work.
 
 MAX TOKENS: 1,000
     The 500-word summary requires approximately 650-750 tokens. Setting

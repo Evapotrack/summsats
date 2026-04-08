@@ -29,7 +29,7 @@ storage pipeline is atomic — once the blockchain confirms payment, the entry
 must be encrypted, hashed, and stored.
 
 Procedure:
-    1. Write an entry and submit. Send 1,000 sats.
+    1. Write an entry and submit. Send 1,500 sats.
     2. Wait for 1 confirmation.
     3. Verify: entry appears in the Entries view with correct text.
     4. Close the app completely (Cmd+Q).
@@ -127,7 +127,7 @@ What this tests: The app handles the critical window between payment
 confirmation and entry storage.
 
 Procedure:
-    1. Submit an entry and send 1,000 sats.
+    1. Submit an entry and send 1,500 sats.
     2. Immediately after the payment is detected (but before/during
        confirmation), force-quit the app.
     3. Wait for the transaction to confirm on-chain.
@@ -197,7 +197,7 @@ that was not submitted.
 
 Procedure:
     1. Do NOT submit any entry (Write view is empty or has a draft).
-    2. Send 1,000 sats to the wallet's most recently derived address.
+    2. Send 1,500 sats to the wallet's most recently derived address.
     3. Wait for confirmation.
     4. Verify: no new entry is created. Sats received as wallet balance.
 
@@ -242,7 +242,7 @@ S4: DUPLICATE TXID ACCEPTANCE
 What this tests: The same transaction cannot pay for two entries.
 
 Procedure:
-    1. Submit entry #1. Pay 1,000 sats. Record the txid.
+    1. Submit entry #1. Pay 1,500 sats. Record the txid.
     2. Entry #1 committed successfully.
     3. Submit entry #2. A new address is generated.
     4. Attempt to associate the old txid with the new entry payment
@@ -255,19 +255,19 @@ Fail: Old txid accepted for a second entry.
 --------------------------------------------------------------------------------
 S5: WRONG AMOUNT ACCEPTANCE
 --------------------------------------------------------------------------------
-What this tests: Only exactly 1,000 sats triggers entry processing.
+What this tests: Only exactly 1,500 sats triggers entry processing.
 
 Procedure:
     1. Submit an entry.
-    2. Send 999 sats to the displayed address. Wait for confirmation.
+    2. Send 1,499 sats to the displayed address. Wait for confirmation.
     3. Verify: entry NOT committed. Sats received by wallet.
     4. Submit a new entry (or resubmit the same one).
-    5. Send 1,001 sats to the new address. Wait for confirmation.
+    5. Send 1,501 sats to the new address. Wait for confirmation.
     6. Verify: entry NOT committed. Sats received by wallet.
-    7. Submit again. Send exactly 1,000 sats. Wait for confirmation.
+    7. Submit again. Send exactly 1,500 sats. Wait for confirmation.
     8. Verify: entry committed successfully.
 
-Pass: Only 1,000 sats triggers entry commit. 999 and 1,001 both rejected.
+Pass: Only 1,500 sats triggers entry commit. 1,499 and 1,501 both rejected.
 Fail: Any non-exact amount triggers entry processing.
 
 --------------------------------------------------------------------------------
@@ -432,7 +432,7 @@ M7: WALLET SEND THRESHOLD
 --------------------------------------------------------------------------------
 Procedure:
     1. With wallet balance below 100,000 sats (e.g., after 50 entries =
-       50,000 sats), attempt to send from the Wallet view.
+       75,000 sats), attempt to send from the Wallet view.
     2. Verify: send is disabled with message "Minimum 100,000 sats to send
        (currently [balance] sats)."
     3. Continue submitting entries until balance reaches 100,000 sats.

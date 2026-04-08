@@ -7,7 +7,7 @@ export function HowTo() {
       <div className="space-y-8 text-sm">
         <Section title="What is SummSats?">
           SummSats is a thinking tool. You write entries about a project — ideas, research,
-          observations, decisions, anything — and pay 1,000 sats per entry. An AI silently
+          observations, decisions, anything — and pay 1,500 sats per entry. An AI silently
           processes each entry and maintains a 500-word summary that captures the patterns,
           connections, and contradictions across everything you have written. Your entries are
           encrypted, immutable, and linked in a tamper-evident hash chain.
@@ -15,7 +15,7 @@ export function HowTo() {
 
         <Section title="How to write an entry">
           Open the Write view. Type anything relevant to your project. Click Submit. The app
-          shows a payment screen with a QR code and address. Send 1,000 sats from any Bitcoin
+          shows a payment screen with a QR code and address. Send 1,500 sats from any Bitcoin
           wallet. Wait for 1 confirmation (~10 minutes). Your entry is encrypted, added to
           the hash chain, and the AI updates your summary.
         </Section>
@@ -59,7 +59,7 @@ export function HowTo() {
         </Section>
 
         <Section title="Why are entries immutable?">
-          Each entry costs 1,000 sats. That payment makes it permanent. You cannot edit or
+          Each entry costs 1,500 sats. That payment makes it permanent. You cannot edit or
           delete entries. This preserves your full arc of thinking — including wrong turns,
           contradictions, and changed minds. The AI uses this complete record to show how
           your understanding evolved.
@@ -67,7 +67,7 @@ export function HowTo() {
 
         <Section title="How to send sats from your wallet">
           Open the Wallet view. Your accumulated sats from entry payments are shown. When
-          your balance reaches 25,000 sats (25 entries), the send function becomes available.
+          your balance reaches 25,000 sats (~17 entries), the send function becomes available.
           Enter a destination address and amount, review the fee, and confirm.
         </Section>
 

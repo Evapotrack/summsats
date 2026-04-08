@@ -42,7 +42,7 @@ export function SettingsView() {
           <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Project</h3>
           <div className="flex justify-between items-center px-4 py-3 bg-gray-900 rounded-lg mb-2">
             <span className="text-gray-300 text-sm">Entry Cost</span>
-            <span className="text-white font-mono text-sm">1,000 sats</span>
+            <span className="text-white font-mono text-sm">1,500 sats</span>
           </div>
         </section>
 

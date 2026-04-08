@@ -19,7 +19,7 @@
 ### C1: Entry Permanent After Payment
 **What:** A paid and confirmed entry is never lost.
 **Procedure:**
-1. Write an entry, submit, send 1,000 sats
+1. Write an entry, submit, send 1,500 sats
 2. Wait for 1 confirmation
 3. Verify: entry appears in Entries view
 4. Close app (Cmd+Q), relaunch, unlock
@@ -70,14 +70,14 @@
 **Fail:** Any entry, summary, or balance missing.
 
 ### C5: Payment Exact Amount Matching
-**What:** Only exactly 1,000 sats triggers entry processing.
+**What:** Only exactly 1,500 sats triggers entry processing.
 **Procedure:**
-1. Submit entry, send 999 sats — verify NO entry committed
-2. Submit entry, send 1,001 sats — verify NO entry committed
-3. Submit entry, send 1,000 sats — verify entry committed after 1 conf
-4. Verify: 999 and 1,001 sats received by wallet but no entries created
+1. Submit entry, send 1,499 sats — verify NO entry committed
+2. Submit entry, send 1,501 sats — verify NO entry committed
+3. Submit entry, send 1,500 sats — verify entry committed after 1 conf
+4. Verify: 1,499 and 1,501 sats received by wallet but no entries created
 
-**Pass:** Only exact 1,000 sats commits an entry.
+**Pass:** Only exact 1,500 sats commits an entry.
 **Fail:** Wrong amount triggers entry processing.
 
 ### C6: Encryption Key Determinism
@@ -253,7 +253,7 @@
 ### U4: QR Code Scannability
 **What:** Payment QR scans with phone wallet.
 **Procedure:** Scan QR with Strike, Muun, or BlueWallet.
-**Pass:** Wallet shows correct address and 1,000 sat amount.
+**Pass:** Wallet shows correct address and 1,500 sat amount.
 
 ### U5: Clipboard Auto-Clear
 **What:** Copied address clears after 60 seconds.

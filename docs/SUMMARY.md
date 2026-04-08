@@ -2,7 +2,7 @@
 
 **Pay to think. Read for free.**
 
-SummSats is an experimental macOS desktop app that combines Bitcoin micropayments with AI-assisted thinking. You write entries about a project — ideas, research, observations, decisions — and pay 1,000 sats per entry. Each entry is encrypted, hashed into a tamper-evident chain, and stored locally. An AI (Claude Haiku) silently processes each entry and maintains an evolving 500-word summary that captures patterns, connections, contradictions, and conclusions across everything you have written.
+SummSats is an experimental macOS desktop app that combines Bitcoin micropayments with AI-assisted thinking. You write entries about a project — ideas, research, observations, decisions — and pay 1,500 sats per entry. Each entry is encrypted, hashed into a tamper-evident chain, and stored locally. An AI (Claude Haiku) silently processes each entry and maintains an evolving 500-word summary that captures patterns, connections, contradictions, and conclusions across everything you have written.
 
 This is not a product pitch. This is an experiment in what happens when you add real economic friction to the act of recording thoughts, and let AI find the threads between them. I have not researched whether similar projects exist.
 
@@ -10,7 +10,7 @@ This is not a product pitch. This is an experiment in what happens when you add 
 
 **Write.** Open the app. Type anything relevant to your project. Click Submit.
 
-**Pay.** A QR code appears with a Bitcoin address. Send exactly 1,000 sats from any wallet. Wait for one on-chain confirmation (~10 minutes).
+**Pay.** A QR code appears with a Bitcoin address. Send exactly 1,500 sats from any wallet. Wait for one on-chain confirmation (~10 minutes).
 
 **Process.** Once confirmed, your entry is compressed, encrypted with AES-256-GCM, and stored locally. The AI reads the current summary, your last 10 entries, and the new entry, then produces an updated 500-word summary. The summary is always exactly 500 words — no more, no less.
 
@@ -42,14 +42,14 @@ Once paid, entries cannot be edited or deleted. Wrong turns and contradictions a
 Choose how the AI writes your summary: **Educational** (structured, analytical), **Reflective** (introspective, personal), or **Philosophical** (abstract, probing). Switch anytime in Settings — the tone applies to the next summary update. Previous summaries are not regenerated.
 
 ### Bitcoin Wallet
-The app accumulates sats from entry payments in its own HD wallet. When balance reaches 25,000 sats (25 entries), you can send to an external address with full transaction detail displayed before broadcast.
+The app accumulates sats from entry payments in its own HD wallet. When balance reaches 25,000 sats (~17 entries), you can send to an external address with full transaction detail displayed before broadcast.
 
 ### Optional Tor Routing
 Route all Bitcoin queries (mempool.space) through Tor for IP-level privacy. Toggle in Settings — requires Tor running on localhost:9050. Falls back to direct connection if Tor is unavailable.
 
 ## Why It Was Made
 
-**Economic friction as a filter.** The 1,000 sat payment creates real cost that a "confirm" dialog cannot replicate. You can click past a dialog. You cannot ignore spending sats. Over time, the cost makes you ask "is this worth preserving?" — the context becomes curated and high-signal.
+**Economic friction as a filter.** The 1,500 sat payment creates real cost that a "confirm" dialog cannot replicate. You can click past a dialog. You cannot ignore spending sats. Over time, the cost makes you ask "is this worth preserving?" — the context becomes curated and high-signal.
 
 **AI as a side effect, not the product.** The user pays for the act of committing a thought. The AI processing (~20 sats cost per entry) is a side effect. This inverts the economics: Bitcoin gates the input, AI is cheap.
 
@@ -59,7 +59,7 @@ Route all Bitcoin queries (mempool.space) through Tor for IP-level privacy. Togg
 
 **Where Bitcoin adds genuine value:**
 - Real economic friction that filters signal from noise
-- Self-funding model (1,000 sats per entry, ~20 sats AI cost — ~50x margin)
+- Self-funding model (1,500 sats per entry, ~20 sats AI cost — ~75x margin)
 - Fresh address per entry — no on-chain pattern linking entries
 
 **Where Bitcoin might be redundant:**
@@ -86,7 +86,7 @@ Route all Bitcoin queries (mempool.space) through Tor for IP-level privacy. Togg
 - **Creative development.** A writer developing a novel, album, or film. Record fragments — character ideas, plot threads, thematic observations — and the AI finds narrative threads across hundreds of entries. The entropy index shows when thinking is diverging (exploring) vs converging (resolving).
 - **Decision journals.** Founders, investors, or anyone making high-stakes decisions over time. Record reasoning as it happens. The immutable chain preserves the full arc — including wrong turns and changed minds. The AI shows how understanding evolved.
 - **Learning and synthesis.** A self-taught developer or researcher reading across disciplines. Record what you learn from each source. The 500-word summary distills cross-domain connections you would not notice manually.
-- **Accountability and intellectual honesty.** The 1,000 sat cost filters noise. The immutability prevents editing out mistakes. The hash chain proves entries existed in order and were never altered. Process over conclusions.
+- **Accountability and intellectual honesty.** The 1,500 sat cost filters noise. The immutability prevents editing out mistakes. The hash chain proves entries existed in order and were never altered. Process over conclusions.
 
 ## Who This Is NOT For
 
@@ -127,7 +127,7 @@ This project was built using Claude Code on a 2025 MacBook Air. It is an experim
 
 - **Entries at rest.** AES-256-GCM encryption with per-entry keys derived via HKDF from your HD seed. Each entry encrypted individually — compromising one does not expose others. On disk, entries are sequential numbered files (001.enc, 002.enc) — no content leaked via filenames.
 - **Summary, entropy, and hash chain.** All encrypted at rest with HKDF-derived keys.
-- **Three independent security layers.** Password gates app access. Seed protects encryption. Bitcoin payment (1,000 sats, 1 confirmation) gates each new entry.
+- **Three independent security layers.** Password gates app access. Seed protects encryption. Bitcoin payment (1,500 sats, 1 confirmation) gates each new entry.
 - **Replay protection.** Each transaction ID logged. Same txid cannot pay for two entries. Fresh BIP84 address per entry — no address reuse.
 - **Key material.** Private keys in memory only during signing, zeroed immediately after. Seed stored encrypted in macOS Keychain via safeStorage. Renderer never accesses key material.
 - **Password.** Hashed with scrypt (random salt, timing-safe comparison). Never stored in plaintext.

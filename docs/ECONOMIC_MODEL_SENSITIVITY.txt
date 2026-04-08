@@ -1,14 +1,14 @@
 ================================================================================
 SUMMSATS — ECONOMIC MODEL SENSITIVITY ANALYSIS
-Stress-testing the 500x margin under varying conditions
+Stress-testing the 750x margin under varying conditions
 Creator: Andrew Brown
 Date: April 6, 2026
 ================================================================================
 
 PURPOSE
 
-The SummSats concept document establishes a 500x margin between what the user
-pays per entry (1,000 sats) and what the AI costs to process it (~2 sats).
+The SummSats concept document establishes a 750x margin between what the user
+pays per entry (1,500 sats) and what the AI costs to process it (~2 sats).
 This document stress-tests that margin under varying Bitcoin prices, API
 pricing changes, usage patterns, and operational scenarios to determine how
 robust the economic model actually is.
@@ -18,9 +18,9 @@ robust the economic model actually is.
 BASELINE MODEL
 ================================================================================
 
-    Entry cost to user:     1,000 sats (fixed, not configurable)
+    Entry cost to user:     1,500 sats (fixed, not configurable)
     AI cost per entry:      ~2 sats (Claude Haiku, ~8,000 input tokens)
-    Margin:                 ~500x
+    Margin:                 ~750x
 
     Bitcoin price assumed:  $60,000 / BTC (1 sat = $0.0006)
     Haiku pricing assumed:  $1.00 per million input tokens,
@@ -35,15 +35,15 @@ BASELINE MODEL
 
     NOTE: The concept document estimates 1-3 sats per entry. Using current
     Haiku pricing ($1/$5 per million tokens) and realistic token counts,
-    the actual cost is closer to ~20 sats per entry. The margin is ~51x,
-    not 500x. The 500x figure in the concept document appears to use
+    the actual cost is closer to ~20 sats per entry. The margin is ~75x,
+    not 750x. The 750x figure in the concept document appears to use
     older or estimated pricing. This analysis uses the more conservative
-    51x figure.
+    75x figure.
 
     Corrected baseline:
-        Revenue per entry:  1,000 sats
+        Revenue per entry:  1,500 sats
         AI cost per entry:  ~20 sats
-        Margin:             ~51x
+        Margin:             ~75x
         This is still highly favorable.
 
 
@@ -56,21 +56,22 @@ depends on the sat-to-USD exchange rate.
 
     BTC Price    1 sat =      AI cost/entry    Sats/entry cost    Margin
     -----------------------------------------------------------------------
-    $20,000      $0.0002      $0.0118          59 sats            ~17x
-    $40,000      $0.0004      $0.0118          30 sats            ~33x
-    $60,000      $0.0006      $0.0118          20 sats            ~51x
-    $100,000     $0.0010      $0.0118          12 sats            ~83x
-    $200,000     $0.0020      $0.0118          6 sats             ~167x
-    $500,000     $0.0050      $0.0118          2 sats             ~500x
+    $20,000      $0.0002      $0.0118          59 sats            ~25x
+    $40,000      $0.0004      $0.0118          30 sats            ~50x
+    $60,000      $0.0006      $0.0118          20 sats            ~75x
+    $100,000     $0.0010      $0.0118          12 sats            ~125x
+    $200,000     $0.0020      $0.0118          6 sats             ~250x
+    $500,000     $0.0050      $0.0118          2 sats             ~750x
+
 
 ANALYSIS: The margin improves as Bitcoin price rises (each sat covers more
 USD cost). Even at $20,000 per BTC — a significant price decline from
-current levels — the margin is 17x. The model breaks even (margin = 1x)
-only if Bitcoin drops below approximately $1,180 per BTC, which would
-represent a 98% decline from current levels.
+current levels — the margin is 25x. The model breaks even (margin = 1x)
+only if Bitcoin drops below approximately $787 per BTC, which would
+represent a 99% decline from current levels.
 
 CONCLUSION: The model is extremely robust against Bitcoin price declines.
-It remains profitable at any Bitcoin price above ~$1,200.
+It remains profitable at any Bitcoin price above ~$800.
 
 
 ================================================================================
@@ -83,23 +84,24 @@ price increases.
     Haiku Price          AI cost/entry    Sats/entry cost    Margin
     Multiplier           (USD)            (at $60K BTC)      
     -----------------------------------------------------------------------
-    1x (current)         $0.0118          20 sats            ~51x
-    2x                   $0.0236          39 sats            ~26x
-    5x                   $0.0590          98 sats            ~10x
-    10x                  $0.1180          197 sats           ~5x
-    20x                  $0.2360          393 sats           ~2.5x
-    50x                  $0.5900          983 sats           ~1.0x
+    1x (current)         $0.0118          20 sats            ~75x
+    2x                   $0.0236          39 sats            ~38x
+    5x                   $0.0590          98 sats            ~15x
+    10x                  $0.1180          197 sats           ~8x
+    20x                  $0.2360          393 sats           ~4x
+    50x                  $0.5900          983 sats           ~1.5x
+    75x                  $0.8850          1,475 sats         ~1.0x
 
-ANALYSIS: At 10x current Haiku pricing, the margin is still 5x — comfortably
-profitable. At 50x current pricing, the margin is essentially break-even.
-The model breaks even at approximately 50x current Haiku pricing.
+ANALYSIS: At 10x current Haiku pricing, the margin is still 8x — comfortably
+profitable. At 75x current pricing, the margin is essentially break-even.
+The model breaks even at approximately 75x current Haiku pricing.
 
 A 10x price increase is plausible if Anthropic significantly reprices Haiku
 or if the user must switch to a larger model. A 50x increase would require
 using Claude Opus (the most expensive model) — which is unnecessary for this
 task.
 
-CONCLUSION: The model withstands up to approximately 50x API price increase
+CONCLUSION: The model withstands up to approximately 75x API price increase
 before breaking even. Even a switch from Haiku to Sonnet (roughly 4-5x more
 expensive) keeps the margin above 10x.
 
@@ -114,22 +116,22 @@ with usage.
     Usage Pattern         Entries/yr    User pays      AI costs      Net
                                         (sats/yr)      (sats/yr)     (sats)
     -----------------------------------------------------------------------
-    Light (1/week)        52            52,000         1,040         50,960
-    Moderate (3/week)     156           156,000        3,120         152,880
-    Heavy (1/day)         365           365,000        7,300         357,700
-    Intensive (3/day)     1,095         1,095,000      21,900        1,073,100
+    Light (1/week)        52            78,000         1,040         76,960
+    Moderate (3/week)     156           234,000        3,120         230,880
+    Heavy (1/day)         365           547,500        7,300         540,200
+    Intensive (3/day)     1,095         1,642,500      21,900        1,620,600
 
     All figures at $60,000 BTC, current Haiku pricing ($1/$5 per MTok).
 
-ANALYSIS: Usage pattern does not affect the margin (it is always ~51x at
+ANALYSIS: Usage pattern does not affect the margin (it is always ~75x at
 current pricing). Higher usage means more absolute sats collected but also
 more API cost. The margin percentage is constant.
 
-The wallet send threshold of 100,000 sats is reached at:
-    Light use:     ~2 years (104 entries)
-    Moderate use:  ~8 months (100 entries)
-    Heavy use:     ~3.5 months (100 entries)
-    Intensive use: ~5 weeks (100 entries)
+The wallet send threshold of 25,000 sats is reached at:
+    Light use:     ~4 months (17 entries)
+    Moderate use:  ~6 weeks (17 entries)
+    Heavy use:     ~17 days (17 entries)
+    Intensive use: ~6 days (17 entries)
 
 
 ================================================================================
@@ -142,17 +144,17 @@ on entry length and summary complexity.
     Avg tokens/call    AI cost/entry    Sats/entry    Margin
                        (USD)            (at $60K)
     -----------------------------------------------------------------------
-    4,000              $0.0063          10 sats        ~100x
-    8,000              $0.0118          20 sats        ~51x
-    16,000             $0.0228          38 sats        ~26x
-    32,000             $0.0448          75 sats        ~13x
-    64,000             $0.0888          148 sats       ~7x
-    100,000            $0.1375          229 sats       ~4x
+    4,000              $0.0063          10 sats        ~150x
+    8,000              $0.0118          20 sats        ~75x
+    16,000             $0.0228          38 sats        ~39x
+    32,000             $0.0448          75 sats        ~20x
+    64,000             $0.0888          148 sats       ~10x
+    100,000            $0.1375          229 sats       ~7x
 
 ANALYSIS: Even if the average input doubles to 16,000 tokens (which would
-require very long entries), the margin is 26x. At 100,000 tokens (the
+require very long entries), the margin is 39x. At 100,000 tokens (the
 extreme case of a massive entry that pushes context limits), the margin is
-still 4x.
+still 7x.
 
 The design caps effective input by sending only the summary + last 10
 entries. This means token count is bounded regardless of total entry count.
@@ -176,23 +178,23 @@ Combining the most pessimistic plausible assumptions simultaneously:
     Sat value:          $0.0002
     Sats per entry:     $0.448 / $0.0002 = 2,240 sats
 
-    At 2,240 sats cost vs 1,000 sats revenue: THE MODEL LOSES MONEY.
+    At 2,240 sats cost vs 1,500 sats revenue: THE MODEL LOSES MONEY.
 
     But this scenario requires THREE simultaneous extreme events. If only
     TWO of the three occur:
 
     $20K BTC + 10x API (normal tokens):
-        AI cost: ~$0.118 / $0.0002 = 590 sats. Margin: ~1.7x. Very thin.
+        AI cost: ~$0.118 / $0.0002 = 590 sats. Margin: ~2.5x. Thin but viable.
 
     $20K BTC + 32K tokens (normal pricing):
-        AI cost: ~$0.0448 / $0.0002 = 224 sats. Margin: ~4x. Comfortable.
+        AI cost: ~$0.0448 / $0.0002 = 224 sats. Margin: ~6.7x. Comfortable.
 
     10x API + 32K tokens ($60K BTC):
-        AI cost: ~$0.448 / $0.0006 = 747 sats. Margin: ~1.3x. Very thin.
+        AI cost: ~$0.448 / $0.0006 = 747 sats. Margin: ~2x. Thin but viable.
 
 CONCLUSION: The model fails only under a simultaneous triple-shock scenario
 that is extremely unlikely. Under any combination of two adverse factors,
-the model remains viable (though sometimes thin).
+the model remains viable (thin but positive in all two-factor cases).
 
 
 ================================================================================
@@ -200,8 +202,8 @@ KEY ECONOMIC INSIGHT
 ================================================================================
 
 The structural advantage of SummSats' model: revenue is direct (user
-explicitly pays 1,000 sats per entry) and AI cost is a rounding error
-(~20 sats per entry, ~51x margin). The key lesson: charge for the
+explicitly pays 1,500 sats per entry) and AI cost is a rounding error
+(~20 sats per entry, ~75x corrected margin). The key lesson: charge for the
 user-valued action, not for the AI processing.
 
 
@@ -216,14 +218,14 @@ by the app. But it affects the total cost to the user.
     Fee rate       Tx vsize     Fee paid        Total cost to user
     (sat/vB)       (est.)       (sats)          (sats)
     -----------------------------------------------------------------------
-    1              141          141             1,141
-    2              141          282             1,282
-    5              141          705             1,705
-    10             141          1,410           2,410
-    20             141          2,820           3,820
-    50             141          7,050           8,050
+    1              141          141             1,641
+    2              141          282             1,782
+    5              141          705             2,205
+    10             141          1,410           2,910
+    20             141          2,820           4,320
+    50             141          7,050           8,550
 
-ANALYSIS: At low fee rates (1-5 sat/vB), the on-chain fee adds 14-70% to
+ANALYSIS: At low fee rates (1-5 sat/vB), the on-chain fee adds 9-47% to
 the entry cost. At high fee rates (20-50 sat/vB), the on-chain fee exceeds
 the entry cost itself. Users will naturally avoid writing entries during
 high-fee periods, creating a natural throttle.
@@ -234,7 +236,7 @@ user can decide whether to wait for lower fees. This is not in the current
 spec but would be a low-effort quality-of-life addition.
 
 FUTURE: Lightning payments (deferred feature) would reduce per-entry payment
-cost to near-zero fees, making the full 1,000 sats the only cost.
+cost to near-zero fees, making the full 1,500 sats the only cost.
 
 
 ================================================================================
@@ -243,23 +245,23 @@ BREAK-EVEN SUMMARY
 
 The model breaks even (AI cost = revenue) when:
 
-    1,000 sats × sat_value_usd = AI_cost_usd
-    1,000 × (btc_price / 100,000,000) = AI_cost_usd
+    1,500 sats × sat_value_usd = AI_cost_usd
+    1,500 × (btc_price / 100,000,000) = AI_cost_usd
 
     At current Haiku pricing (~$0.0118/entry):
-        Break-even BTC price = $0.0118 × 100,000,000 / 1,000 = $1,180
+        Break-even BTC price = $0.0118 × 100,000,000 / 1,500 = $787
 
     At 10x Haiku pricing (~$0.118/entry):
-        Break-even BTC price = $0.118 × 100,000,000 / 1,000 = $11,800
+        Break-even BTC price = $0.118 × 100,000,000 / 1,500 = $7,867
 
     At current BTC price ($60,000), Haiku price must reach:
-        $60,000 × 1,000 / 100,000,000 = $0.60 per entry
-        Current cost is $0.0118, so pricing must increase ~51x
+        $60,000 × 1,500 / 100,000,000 = $0.90 per entry
+        Current cost is $0.0118, so pricing must increase ~76x
 
 CONCLUSION: The SummSats economic model is robust. It survives extreme
 Bitcoin price declines, significant API price increases, and high token
 variability. Only a simultaneous triple-shock scenario threatens it. The
-51x margin at current conditions provides enormous headroom.
+75x corrected margin at current conditions provides enormous headroom.
 
 
 ================================================================================
