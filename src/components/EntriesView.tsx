@@ -18,7 +18,9 @@ export function EntriesView() {
     try {
       const text = await window.summSats.loadEntry(num);
       setReadingEntry({ number: num, text });
-    } catch { /* ignore */ }
+    } catch {
+      setReadingEntry({ number: num, text: 'Failed to decrypt this entry. The file may be corrupted.' });
+    }
     setLoading(false);
   };
 

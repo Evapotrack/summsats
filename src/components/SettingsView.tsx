@@ -69,9 +69,9 @@ export function SettingsView() {
           <div className="flex justify-between items-center px-4 py-3 bg-gray-900 rounded-lg">
             <span className="text-gray-300 text-sm">Denomination</span>
             <div className="flex bg-gray-800 rounded-lg overflow-hidden">
-              <button onClick={() => setDenomination('sats')}
+              <button onClick={() => { setDenomination('sats'); window.summSats.setDenomination('sats'); }}
                 className={`px-3 py-1 text-sm ${denomination === 'sats' ? 'bg-amber-700 text-white' : 'text-gray-400'}`}>sats</button>
-              <button onClick={() => setDenomination('btc')}
+              <button onClick={() => { setDenomination('btc'); window.summSats.setDenomination('btc'); }}
                 className={`px-3 py-1 text-sm ${denomination === 'btc' ? 'bg-amber-700 text-white' : 'text-gray-400'}`}>BTC</button>
             </div>
           </div>
@@ -81,7 +81,7 @@ export function SettingsView() {
           <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Security</h3>
           <div className="flex justify-between items-center px-4 py-3 bg-gray-900 rounded-lg mb-2">
             <span className="text-gray-300 text-sm">Auto-Lock Timer</span>
-            <select value={autoLockMinutes} onChange={e => setAutoLockMinutes(parseInt(e.target.value))}
+            <select value={autoLockMinutes} onChange={e => { const m = parseInt(e.target.value); setAutoLockMinutes(m); window.summSats.setAutoLockMinutes(m); }}
               className="bg-gray-800 border-none text-white text-sm rounded px-2 py-1 focus:outline-none">
               <option value={5}>5 min</option><option value={10}>10 min</option><option value={15}>15 min</option>
               <option value={30}>30 min</option><option value={60}>60 min</option>

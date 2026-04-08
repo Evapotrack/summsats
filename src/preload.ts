@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld('summSats', {
   loadProject: () => ipcRenderer.invoke('load-project'),
   setSummaryTone: (tone: string) => ipcRenderer.invoke('set-summary-tone', tone),
   setUseTor: (enabled: boolean) => ipcRenderer.invoke('set-use-tor', enabled),
+  setAutoLockMinutes: (minutes: number) => ipcRenderer.invoke('set-auto-lock-minutes', minutes),
+  setDenomination: (denom: string) => ipcRenderer.invoke('set-denomination', denom),
+  getTorStatus: () => ipcRenderer.invoke('get-tor-status'),
   getConfig: () => ipcRenderer.invoke('get-config'),
 
   // Entries

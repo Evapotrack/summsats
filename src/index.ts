@@ -288,6 +288,19 @@ ipcMain.handle('set-use-tor', (_e, enabled: boolean) => {
   keychain.storeConfig(JSON.stringify(currentConfig));
 });
 
+ipcMain.handle('set-auto-lock-minutes', (_e, minutes: number) => {
+  if (!currentConfig) return;
+  currentConfig.autoLockMinutes = minutes;
+  keychain.storeConfig(JSON.stringify(currentConfig));
+  resetAutoLock(minutes);
+});
+
+ipcMain.handle('set-denomination', (_e, denom: string) => {
+  if (!currentConfig) return;
+  currentConfig.denomination = denom as AppConfig['denomination'];
+  keychain.storeConfig(JSON.stringify(currentConfig));
+});
+
 ipcMain.handle('get-config', () => currentConfig);
 
 // ===== UTIL =====

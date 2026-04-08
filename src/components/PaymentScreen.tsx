@@ -52,7 +52,7 @@ export function PaymentScreen() {
     }
   };
 
-  const bip21 = address ? `bitcoin:${address}?amount=0.00001000` : '';
+  const bip21 = address ? `bitcoin:${address}?amount=0.00001` : '';
   const copyAddress = async () => { if (address) await window.summSats.copyToClipboard(address); };
 
   return (

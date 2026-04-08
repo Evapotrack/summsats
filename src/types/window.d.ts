@@ -16,6 +16,9 @@ interface SummSatsAPI {
   }>;
   setSummaryTone(tone: string): Promise<void>;
   setUseTor(enabled: boolean): Promise<void>;
+  setAutoLockMinutes(minutes: number): Promise<void>;
+  setDenomination(denom: string): Promise<void>;
+  getTorStatus(): Promise<{ enabled: boolean; available: boolean }>;
   getConfig(): Promise<{ networkType: string; dataFolderPath: string; autoLockMinutes: number; denomination: string; summaryTone?: string; useTor?: boolean } | null>;
   getEntryAddress(): Promise<{ address: string; index: number }>;
   pollEntryPayment(address: string): Promise<{ confirmed: boolean; detected?: boolean; txid?: string }>;
