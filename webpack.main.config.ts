@@ -15,5 +15,6 @@ export const mainConfig: Configuration = {
   externals: {
     'tiny-secp256k1': 'commonjs tiny-secp256k1',
     '@anthropic-ai/sdk': 'commonjs @anthropic-ai/sdk',
+    'socks-proxy-agent': 'commonjs socks-proxy-agent',
   },
 };

@@ -2,6 +2,7 @@ import * as bitcoin from 'bitcoinjs-lib';
 import * as ecc from 'tiny-secp256k1';
 import type { NetworkType, UTXO, TransactionDetail } from '../types';
 import { deriveKeyPair } from './wallet';
+import { torFetch } from './torFetch';
 
 bitcoin.initEccLib(ecc);
 
@@ -84,7 +85,7 @@ export async function signAndBroadcast(
   psbt.finalizeAllInputs();
   const txHex = psbt.extractTransaction().toHex();
   const baseUrl = networkType === 'testnet' ? 'https://mempool.space/testnet/api' : 'https://mempool.space/api';
-  const res = await fetch(`${baseUrl}/tx`, { method: 'POST', body: txHex, headers: { 'Content-Type': 'text/plain' } });
+  const res = await torFetch(`${baseUrl}/tx`, { method: 'POST', body: txHex, headers: { 'Content-Type': 'text/plain' } });
   if (!res.ok) throw new Error(`Broadcast failed: ${await res.text()}`);
   seed.fill(0);
   return await res.text();

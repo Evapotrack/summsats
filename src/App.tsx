@@ -13,7 +13,7 @@ import { HowTo } from './components/HowTo';
 export function App() {
   const { view, setView, setSetupComplete, isUnlocked, setUnlocked, lockApp,
     setEntryCount, setSummary, setEntropyHistory, setChainHashes, setNetworkType,
-    setAddressIndex, setPendingSummaryUpdate, setAutoLockMinutes, setDenomination } = useSummStore();
+    setAddressIndex, setPendingSummaryUpdate, setAutoLockMinutes, setDenomination, setSummaryTone } = useSummStore();
   const [loading, setLoading] = useState(true);
   const [passwordInput, setPasswordInput] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -78,6 +78,7 @@ export function App() {
       setNetworkType(data.config.networkType as 'testnet' | 'mainnet');
       setAutoLockMinutes(data.config.autoLockMinutes);
       setDenomination(data.config.denomination as 'sats' | 'btc');
+      if (data.config.summaryTone) setSummaryTone(data.config.summaryTone as 'educational' | 'reflective' | 'philosophical');
       setUnlocked(true);
       setView('write');
     } catch { setPasswordError('Failed to load project'); }

@@ -19,6 +19,9 @@ contextBridge.exposeInMainWorld('summSats', {
   // Project
   createProject: (config: unknown) => ipcRenderer.invoke('create-project', config),
   loadProject: () => ipcRenderer.invoke('load-project'),
+  setSummaryTone: (tone: string) => ipcRenderer.invoke('set-summary-tone', tone),
+  setUseTor: (enabled: boolean) => ipcRenderer.invoke('set-use-tor', enabled),
+  getConfig: () => ipcRenderer.invoke('get-config'),
 
   // Entries
   getEntryAddress: () => ipcRenderer.invoke('get-entry-address'),

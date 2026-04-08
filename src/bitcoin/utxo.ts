@@ -1,4 +1,5 @@
 import type { NetworkType, UTXO } from '../types';
+import { torFetch } from './torFetch';
 
 function getBaseUrl(networkType: NetworkType): string {
   return networkType === 'testnet'
@@ -8,14 +9,14 @@ function getBaseUrl(networkType: NetworkType): string {
 
 async function fetchBlockHeight(networkType: NetworkType): Promise<number> {
   const url = `${getBaseUrl(networkType)}/blocks/tip/height`;
-  const res = await fetch(url);
+  const res = await torFetch(url);
   if (!res.ok) return 0;
   return parseInt(await res.text(), 10);
 }
 
 export async function fetchUtxos(address: string, derivationIndex: number, networkType: NetworkType): Promise<UTXO[]> {
   const url = `${getBaseUrl(networkType)}/address/${address}/utxo`;
-  const res = await fetch(url);
+  const res = await torFetch(url);
   if (!res.ok) throw new Error(`Failed to fetch UTXOs: ${res.status}`);
   const currentHeight = await fetchBlockHeight(networkType);
   const data: Array<{ txid: string; vout: number; value: number; status: { confirmed: boolean; block_height?: number } }> = await res.json();
@@ -51,7 +52,7 @@ export async function checkPayment(
   address: string, expectedAmount: number, networkType: NetworkType
 ): Promise<{ found: boolean; confirmed: boolean; txid?: string }> {
   const url = `${getBaseUrl(networkType)}/address/${address}/txs`;
-  const res = await fetch(url);
+  const res = await torFetch(url);
   if (!res.ok) return { found: false, confirmed: false };
   const txs: Array<{ txid: string; status: { confirmed: boolean }; vout: Array<{ scriptpubkey_address?: string; value: number }> }> = await res.json();
   for (const tx of txs) {

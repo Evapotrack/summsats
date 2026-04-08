@@ -1,24 +1,48 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { SummaryTone } from '../types';
 
 const MODEL = 'claude-haiku-4-5-20251001';
 const MAX_TOKENS = 1024;
 
-const SYSTEM_PROMPT = `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
-
-Rules:
+const BASE_RULES = `Rules:
 - Respond with ONLY the updated summary. No preamble, no commentary.
 - Exactly 500 words. Not 499, not 501.
 - Draw ONLY from the entries and existing summary. Never add outside knowledge, general facts, or your own opinions.
 - Prioritize: connections between entries > recurring themes > recent developments > contradictions > older context that hasn't evolved.
 - When the summary is full and new material arrives, compress older patterns to make room for new ones. Nothing is deleted — it is distilled into fewer words.
 - If the user's thinking has evolved or reversed on a topic, reflect both the original position and the change.
-- Write in third person: 'The project explores...' not 'You said...'
-- Neutral tone. The summary observes the thinking, it does not evaluate it.`;
+- Write in third person: 'The project explores...' not 'You said...'`;
+
+const TONE_INSTRUCTIONS: Record<SummaryTone, string> = {
+  educational: `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
+
+Write in an educational tone: structured, clear, and analytical. Organize ideas by topic. Use precise language. Explain relationships between concepts as a teacher would — connecting cause to effect, distinguishing hypothesis from evidence, and building understanding incrementally.
+
+${BASE_RULES}
+- Educational tone: structured and analytical. Organize by topic. Explain relationships clearly.`,
+
+  reflective: `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
+
+Write in a reflective tone: introspective, personal, and observant. Focus on how thinking has changed over time. Surface the emotional and intellectual arc of the project — what surprised, what challenged assumptions, what remains unresolved.
+
+${BASE_RULES}
+- Reflective tone: introspective and observant. Surface the arc of evolving thought.`,
+
+  philosophical: `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
+
+Write in a philosophical tone: abstract, conceptual, and probing. Explore the deeper implications of ideas. Ask what the patterns mean, not just what they are. Surface tensions between competing principles and the assumptions underlying each position.
+
+${BASE_RULES}
+- Philosophical tone: abstract and probing. Explore implications and underlying assumptions.`,
+};
+
+function getSystemPrompt(tone: SummaryTone): string {
+  return TONE_INSTRUCTIONS[tone];
+}
 
 // Strip known preamble/postamble patterns
 function stripWrappers(text: string): string {
   let cleaned = text.trim();
-  // Common preambles
   const preamblePatterns = [
     /^(?:here\s+is|here's|updated|sure[!,.]?\s*here'?s?)\s+(?:the\s+)?(?:updated\s+)?(?:500[- ]word\s+)?summary[:\s]*/i,
     /^(?:based on|incorporating|reflecting)\s+(?:the\s+)?(?:new\s+)?entry[,:\s]*/i,
@@ -28,7 +52,6 @@ function stripWrappers(text: string): string {
   for (const pattern of preamblePatterns) {
     cleaned = cleaned.replace(pattern, '');
   }
-  // Common postambles
   const postamblePatterns = [
     /\n\n(?:let me know|this summary|i've (?:updated|incorporated)|note:).*/i,
   ];
@@ -53,9 +76,11 @@ export async function generateSummary(
   apiKey: string,
   currentSummary: string | null,
   recentEntries: string[],
-  newEntry: string
+  newEntry: string,
+  tone: SummaryTone = 'educational'
 ): Promise<SummaryResult | null> {
   const client = new Anthropic({ apiKey });
+  const systemPrompt = getSystemPrompt(tone);
 
   let userContent = '';
   if (currentSummary) {
@@ -63,7 +88,7 @@ export async function generateSummary(
   }
   if (recentEntries.length > 0) {
     userContent += `RECENT ENTRIES:\n`;
-    recentEntries.forEach((entry, i) => {
+    recentEntries.forEach((entry) => {
       userContent += `--- Entry ---\n${entry}\n\n`;
     });
   }
@@ -73,7 +98,7 @@ export async function generateSummary(
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: [{ role: 'user', content: userContent }],
     });
 
@@ -85,12 +110,10 @@ export async function generateSummary(
     const inputTokens = response.usage?.input_tokens ?? 0;
     const outputTokens = response.usage?.output_tokens ?? 0;
 
-    // Try raw first
     let text = rawText.trim();
     let wc = countWords(text);
 
     if (wc !== 500) {
-      // Try stripping preamble/postamble
       text = stripWrappers(rawText);
       wc = countWords(text);
     }
@@ -99,14 +122,12 @@ export async function generateSummary(
       return { summary: text, wordCount: wc, inputTokens, outputTokens };
     }
 
-    return null; // Rejected
+    return null;
   };
 
-  // First attempt
   let result = await attempt();
   if (result) return result;
 
-  // Retry once
   result = await attempt();
-  return result; // null if still rejected — caller will queue
+  return result;
 }

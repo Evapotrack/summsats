@@ -1,4 +1,5 @@
 import type { NetworkType } from '../types';
+import { torFetch } from './torFetch';
 
 const FEE_CEILING = 100;
 
@@ -10,7 +11,7 @@ function getBaseUrl(networkType: NetworkType): string {
 
 export async function fetchFeeEstimates(networkType: NetworkType): Promise<{ fast: number; medium: number; slow: number }> {
   const url = `${getBaseUrl(networkType)}/v1/fees/recommended`;
-  const res = await fetch(url);
+  const res = await torFetch(url);
   if (!res.ok) throw new Error(`Failed to fetch fees: ${res.status}`);
   const data: { fastestFee: number; halfHourFee: number; hourFee: number } = await res.json();
   return {

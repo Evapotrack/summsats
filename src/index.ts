@@ -9,6 +9,7 @@ import * as storage from './entries/storage';
 import * as chain from './entries/chain';
 import { generateSummary } from './ai/summarize';
 import type { AppConfig, NetworkType, ProjectData } from './types';
+import { setUseTor } from './bitcoin/torFetch';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -21,6 +22,7 @@ let currentMasterKey: Buffer | null = null;
 let currentNetworkType: NetworkType = 'testnet';
 let currentDataFolder: string | null = null;
 let currentProject: ProjectData | null = null;
+let currentConfig: AppConfig | null = null;
 let autoLockTimer: ReturnType<typeof setTimeout> | null = null;
 let mainWindow: BrowserWindow | null = null;
 
@@ -99,6 +101,8 @@ ipcMain.handle('set-api-key', (_e, key: string) => keychain.storeApiKey(key));
 ipcMain.handle('create-project', async (_e, config: AppConfig) => {
   currentNetworkType = config.networkType;
   currentDataFolder = config.dataFolderPath;
+  currentConfig = config;
+  setUseTor(config.useTor ?? false);
   keychain.storeConfig(JSON.stringify(config));
   try {
     storage.initDataFolder(currentDataFolder);
@@ -122,8 +126,10 @@ ipcMain.handle('load-project', async () => {
   const configStr = keychain.getConfig();
   if (!configStr) throw new Error('No config');
   const config: AppConfig = JSON.parse(configStr);
+  currentConfig = config;
   currentNetworkType = config.networkType;
   currentDataFolder = config.dataFolderPath;
+  setUseTor(config.useTor ?? false);
   const mnemonic = keychain.getSeed();
   if (!mnemonic) throw new Error('No seed');
   const seed = await wallet.mnemonicToSeed(mnemonic);
@@ -199,7 +205,8 @@ ipcMain.handle('commit-entry', async (_e, entryText: string) => {
       }
       const existingSummary = entryNumber === 2 ? null
         : storage.loadSummary(currentDataFolder, currentMasterKey);
-      const result = await generateSummary(apiKey, existingSummary, recentEntries, entryText);
+      const tone = currentConfig?.summaryTone ?? 'educational';
+      const result = await generateSummary(apiKey, existingSummary, recentEntries, entryText, tone);
       if (result) {
         storage.saveSummary(currentDataFolder, result.summary, currentMasterKey);
         currentProject.summary = result.summary;
@@ -266,6 +273,22 @@ ipcMain.handle('broadcast-transaction', async (_e, toAddress: string, amountSats
   const seedCopy = Buffer.from(currentSeed);
   return txModule.signAndBroadcast(utxos, toAddress, amountSats, feeRate, changeAddr, seedCopy, currentNetworkType);
 });
+
+// ===== CONFIG =====
+ipcMain.handle('set-summary-tone', (_e, tone: string) => {
+  if (!currentConfig) return;
+  currentConfig.summaryTone = tone as AppConfig['summaryTone'];
+  keychain.storeConfig(JSON.stringify(currentConfig));
+});
+
+ipcMain.handle('set-use-tor', (_e, enabled: boolean) => {
+  if (!currentConfig) return;
+  currentConfig.useTor = enabled;
+  setUseTor(enabled);
+  keychain.storeConfig(JSON.stringify(currentConfig));
+});
+
+ipcMain.handle('get-config', () => currentConfig);
 
 // ===== UTIL =====
 ipcMain.handle('get-network-type', () => currentNetworkType);

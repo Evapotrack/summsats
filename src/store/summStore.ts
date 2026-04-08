@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { AppView, ProjectData, UTXO, Denomination, NetworkType } from '../types';
+import type { AppView, ProjectData, UTXO, Denomination, NetworkType, SummaryTone } from '../types';
 
 interface SummState {
   view: AppView;
@@ -7,6 +7,7 @@ interface SummState {
   isSetupComplete: boolean;
   networkType: NetworkType;
   denomination: Denomination;
+  summaryTone: SummaryTone;
 
   // Project
   entryCount: number;
@@ -41,6 +42,7 @@ interface SummState {
   setSetupComplete: (v: boolean) => void;
   setNetworkType: (v: NetworkType) => void;
   setDenomination: (v: Denomination) => void;
+  setSummaryTone: (v: SummaryTone) => void;
   setEntryCount: (v: number) => void;
   setSummary: (v: string | null) => void;
   setEntropyHistory: (v: number[]) => void;
@@ -67,6 +69,7 @@ export const useSummStore = create<SummState>((set, get) => ({
   isSetupComplete: false,
   networkType: 'testnet',
   denomination: 'sats',
+  summaryTone: 'educational',
   entryCount: 0,
   summary: null,
   entropyHistory: [],
@@ -89,6 +92,7 @@ export const useSummStore = create<SummState>((set, get) => ({
   setSetupComplete: (isSetupComplete) => set({ isSetupComplete }),
   setNetworkType: (networkType) => set({ networkType }),
   setDenomination: (denomination) => set({ denomination }),
+  setSummaryTone: (summaryTone) => set({ summaryTone }),
   setEntryCount: (entryCount) => set({ entryCount }),
   setSummary: (summary) => set({ summary }),
   setEntropyHistory: (entropyHistory) => set({ entropyHistory }),

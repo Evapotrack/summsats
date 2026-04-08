@@ -1,5 +1,6 @@
 export type NetworkType = 'testnet' | 'mainnet';
 export type Denomination = 'sats' | 'btc';
+export type SummaryTone = 'educational' | 'reflective' | 'philosophical';
 export type AppView = 'setup' | 'lock' | 'write' | 'payment' | 'summary' | 'entries' | 'wallet' | 'settings' | 'howto';
 
 export interface AppConfig {
@@ -7,6 +8,8 @@ export interface AppConfig {
   dataFolderPath: string;
   autoLockMinutes: number;
   denomination: Denomination;
+  summaryTone: SummaryTone;
+  useTor: boolean;
 }
 
 export interface EntryRecord {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { AppConfig } from '../types';
+import type { AppConfig, SummaryTone } from '../types';
 
 interface Props { onComplete: () => void; }
 type Step = 'welcome' | 'seed-display' | 'seed-verify' | 'config' | 'done';
@@ -18,6 +18,7 @@ export function SetupWizard({ onComplete }: Props) {
   const [apiKey, setApiKey] = useState('');
   const [networkType, setNetworkType] = useState<'testnet' | 'mainnet'>('testnet');
   const [autoLock, setAutoLock] = useState('15');
+  const [summaryTone, setSummaryTone] = useState<SummaryTone>('educational');
   const [dataFolder, setDataFolder] = useState('');
   const [configError, setConfigError] = useState('');
 
@@ -56,7 +57,7 @@ export function SetupWizard({ onComplete }: Props) {
     await window.summSats.setPassword(password);
     await window.summSats.setApiKey(apiKey.trim());
     if (!isRestore) await window.summSats.storeSeed(seedWords);
-    const config: AppConfig = { networkType, dataFolderPath: dataFolder, autoLockMinutes: parseInt(autoLock) || 15, denomination: 'sats' };
+    const config: AppConfig = { networkType, dataFolderPath: dataFolder, autoLockMinutes: parseInt(autoLock) || 15, denomination: 'sats', summaryTone, useTor: false };
     await window.summSats.createProject(config);
     setStep('done');
   };
@@ -70,11 +71,11 @@ export function SetupWizard({ onComplete }: Props) {
     <div className="flex flex-col h-screen bg-gray-950">
       <div className="h-8 shrink-0" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
       <div className="flex-1 flex items-center justify-center overflow-auto">
-        <div className="w-full max-w-md px-8 py-4">
+        <div className="w-full max-w-md px-8 py-4 mx-auto">
 
           {step === 'welcome' && (
-            <div className="space-y-8">
-              <div className="text-center">
+            <div className="space-y-8 text-center">
+              <div>
                 <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Georgia, serif' }}>SummSats</h1>
                 <p className="text-gray-400">Pay to think. Read for free.</p>
               </div>
@@ -184,6 +185,15 @@ export function SetupWizard({ onComplete }: Props) {
                   <option value="5">5 minutes</option><option value="10">10 minutes</option>
                   <option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option>
                 </select>
+              </div>
+              <div>
+                <label className="text-gray-400 text-sm">Summary Tone</label>
+                <select value={summaryTone} onChange={e => setSummaryTone(e.target.value as SummaryTone)} className={input}>
+                  <option value="educational">Educational — structured and analytical</option>
+                  <option value="reflective">Reflective — introspective and personal</option>
+                  <option value="philosophical">Philosophical — abstract and probing</option>
+                </select>
+                <p className="text-gray-600 text-xs mt-1">You can change this anytime in Settings.</p>
               </div>
               <div>
                 <label className="text-gray-400 text-sm">Data Folder</label>

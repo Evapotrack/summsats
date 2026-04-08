@@ -12,8 +12,11 @@ interface SummSatsAPI {
   loadProject(): Promise<{
     entryCount: number; summary: string | null; entropyHistory: number[];
     chainHashes: string[]; addressIndex: number; usedTxids: string[];
-    pendingSummaryUpdate: boolean; config: { networkType: string; dataFolderPath: string; autoLockMinutes: number; denomination: string };
+    pendingSummaryUpdate: boolean; config: { networkType: string; dataFolderPath: string; autoLockMinutes: number; denomination: string; summaryTone?: string; useTor?: boolean };
   }>;
+  setSummaryTone(tone: string): Promise<void>;
+  setUseTor(enabled: boolean): Promise<void>;
+  getConfig(): Promise<{ networkType: string; dataFolderPath: string; autoLockMinutes: number; denomination: string; summaryTone?: string; useTor?: boolean } | null>;
   getEntryAddress(): Promise<{ address: string; index: number }>;
   pollEntryPayment(address: string): Promise<{ confirmed: boolean; detected?: boolean; txid?: string }>;
   commitEntry(text: string): Promise<{
