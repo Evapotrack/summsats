@@ -71,8 +71,29 @@ export function PaymentScreen() {
           <div className="text-white text-xl font-semibold">Send 1,000 sats</div>
           <div className="text-sm">
             {status === 'waiting' && <span className="text-gray-400">Waiting for payment...</span>}
-            {status === 'detected' && <span className="text-amber-600">Transaction detected. Waiting for confirmation...</span>}
-            {status === 'confirmed' && <span className="text-white">Confirmed. Processing entry...</span>}
+            {status === 'detected' && (
+              <div className="space-y-3">
+                <span className="text-amber-600">Transaction detected. Waiting for confirmation...</span>
+                <div className="flex justify-center gap-2 pt-1">
+                  <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.2s' }} />
+                  <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.2s' }} />
+                  <span className="w-2.5 h-2.5 bg-amber-600 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.2s' }} />
+                </div>
+              </div>
+            )}
+            {status === 'confirmed' && (
+              <div className="space-y-3">
+                <div className="flex justify-center">
+                  <div className="w-16 h-16 rounded-full bg-amber-700/20 flex items-center justify-center">
+                    <svg className="w-8 h-8 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                </div>
+                <span className="text-white font-semibold">Confirmed</span>
+                <p className="text-gray-400 text-xs">Processing entry...</p>
+              </div>
+            )}
             {status === 'processing' && <span className="text-gray-400">Encrypting and processing...</span>}
           </div>
           <button onClick={() => setView('write')} className="text-gray-500 hover:text-white text-sm transition-colors">&larr; Back to Write</button>
