@@ -54,12 +54,16 @@ export function SetupWizard({ onComplete }: Props) {
     if (!apiKey.startsWith('sk-ant-') || apiKey.length < 30) { setConfigError('Enter a valid Anthropic API key (starts with sk-ant-).'); return; }
     if (!dataFolder) { setConfigError('Select a data folder.'); return; }
     setConfigError('');
-    await window.summSats.setPassword(password);
-    await window.summSats.setApiKey(apiKey.trim());
-    if (!isRestore) await window.summSats.storeSeed(seedWords);
-    const config: AppConfig = { networkType, dataFolderPath: dataFolder, autoLockMinutes: parseInt(autoLock) || 15, denomination: 'sats', summaryTone, useTor: false };
-    await window.summSats.createProject(config);
-    setStep('done');
+    try {
+      await window.summSats.setPassword(password);
+      await window.summSats.setApiKey(apiKey.trim());
+      if (!isRestore) await window.summSats.storeSeed(seedWords);
+      const config: AppConfig = { networkType, dataFolderPath: dataFolder, autoLockMinutes: parseInt(autoLock) || 15, denomination: 'sats', summaryTone, useTor: false };
+      await window.summSats.createProject(config);
+      setStep('done');
+    } catch (err) {
+      setConfigError(err instanceof Error ? err.message : 'Setup failed. Check your settings and try again.');
+    }
   };
 
   const selectFolder = async () => { const f = await window.summSats.selectFolder(); if (f) setDataFolder(f); };
@@ -70,8 +74,8 @@ export function SetupWizard({ onComplete }: Props) {
   return (
     <div className="flex flex-col h-screen bg-gray-950">
       <div className="h-8 shrink-0" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties} />
-      <div className="flex-1 flex items-center justify-center overflow-auto">
-        <div className="w-full max-w-md px-8 py-4 mx-auto">
+      <div className="flex-1 flex items-center justify-center overflow-auto px-8">
+        <div className="w-full max-w-md">
 
           {step === 'welcome' && (
             <div className="space-y-8 text-center">
