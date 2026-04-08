@@ -9,7 +9,7 @@ import * as storage from './entries/storage';
 import * as chain from './entries/chain';
 import { generateSummary } from './ai/summarize';
 import type { AppConfig, NetworkType, ProjectData } from './types';
-import { setUseTor } from './bitcoin/torFetch';
+import { setUseTor, getTorStatus } from './bitcoin/torFetch';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -303,6 +303,7 @@ ipcMain.handle('copy-to-clipboard', (_e, text: string) => {
   setTimeout(() => { if (clipboard.readText() === text) clipboard.clear(); }, 60000);
 });
 ipcMain.handle('lock-app', () => clearSensitiveState());
+ipcMain.handle('get-tor-status', () => getTorStatus());
 ipcMain.handle('touch-activity', () => {
   const configStr = keychain.getConfig();
   if (configStr) { const c: AppConfig = JSON.parse(configStr); resetAutoLock(c.autoLockMinutes); }

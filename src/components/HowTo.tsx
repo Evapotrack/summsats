@@ -90,11 +90,28 @@ export function HowTo() {
           of API usage.
         </Section>
 
+        <Section title="How to use Tor">
+          SummSats can route all Bitcoin network requests through Tor for IP-level privacy.{'\n\n'}
+          1. Install Tor on your Mac (e.g., via Homebrew: brew install tor){'\n'}
+          2. Start Tor: run &quot;tor&quot; in Terminal (it listens on localhost:9050){'\n'}
+          3. Open SummSats Settings and enable &quot;Route through Tor&quot;{'\n\n'}
+          When enabled, all mempool.space queries (payment verification, balance checks,
+          fee estimates, transaction broadcasts) are routed through the Tor SOCKS5 proxy.
+          This prevents your ISP or network observer from seeing which Bitcoin addresses
+          you query.{'\n\n'}
+          If Tor is enabled but not running, the app falls back to a direct connection
+          and logs a warning. Your entry data sent to Anthropic is NOT routed through
+          Tor — only Bitcoin network traffic is affected.{'\n\n'}
+          To verify Tor is working: check that the Tor process is running (Activity Monitor
+          or &quot;ps aux | grep tor&quot; in Terminal) before enabling the toggle.
+        </Section>
+
         <Section title="Privacy">
           Each entry text is sent to Anthropic for AI processing. Only the current summary,
           last 10 entries, and new entry are sent. No wallet data, no seed, no timestamps,
           no entry numbers, no hash chain data. The app also connects to mempool.space for
-          payment verification. No analytics, no telemetry, no crash reporting.
+          payment verification (optionally through Tor). No analytics, no telemetry, no
+          crash reporting.
         </Section>
       </div>
     </div>

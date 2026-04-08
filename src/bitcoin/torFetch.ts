@@ -15,6 +15,12 @@ export function isTorEnabled(): boolean {
   return useTorEnabled;
 }
 
+export async function getTorStatus(): Promise<{ enabled: boolean; available: boolean }> {
+  if (!useTorEnabled) return { enabled: false, available: false };
+  if (torAvailable === null) torAvailable = await checkTorAvailable();
+  return { enabled: true, available: torAvailable };
+}
+
 async function checkTorAvailable(): Promise<boolean> {
   return new Promise((resolve) => {
     const socket = net.createConnection({ host: '127.0.0.1', port: 9050 }, () => {
@@ -77,7 +83,8 @@ export async function torFetch(url: string, options?: { method?: string; body?: 
   }
 
   if (!torAvailable) {
-    // Tor not running — direct fallback
+    // Tor enabled but not running — fall back with console warning
+    console.warn('[SummSats] Tor enabled but not available on localhost:9050. Falling back to direct connection.');
     const res = await fetch(url, options);
     return { ok: res.ok, status: res.status, text: () => res.text(), json: () => res.json() };
   }
