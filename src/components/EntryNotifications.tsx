@@ -34,6 +34,8 @@ export function EntryNotifications() {
   const startPolling = (notif: typeof entryNotifications[0]) => {
     const poll = async () => {
       try {
+        // Keep auto-lock timer alive while entries are pending confirmation
+        window.summSats.touchActivity();
         const result = await window.summSats.pollEntryPayment(notif.address);
         if (result.confirmed) {
           const interval = pollRefs.current.get(notif.id);
