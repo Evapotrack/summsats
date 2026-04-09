@@ -1,7 +1,7 @@
 export type NetworkType = 'testnet' | 'mainnet';
 export type Denomination = 'sats' | 'btc';
 export type SummaryTone = 'educational' | 'reflective' | 'philosophical';
-export type AppView = 'setup' | 'lock' | 'write' | 'payment' | 'summary' | 'entries' | 'wallet' | 'settings' | 'howto';
+export type AppView = 'setup' | 'lock' | 'write' | 'payment' | 'summary' | 'entries' | 'wallet' | 'export' | 'settings' | 'howto';
 
 export interface AppConfig {
   networkType: NetworkType;

@@ -9,6 +9,7 @@ import { EntriesView } from './components/EntriesView';
 import { WalletView } from './components/WalletView';
 import { SettingsView } from './components/SettingsView';
 import { HowTo } from './components/HowTo';
+import { ExportView } from './components/ExportView';
 import { EntryNotifications } from './components/EntryNotifications';
 
 export function App() {
@@ -91,6 +92,7 @@ export function App() {
       case 'summary': return <SummaryView />;
       case 'entries': return <EntriesView />;
       case 'wallet': return <WalletView />;
+      case 'export': return <ExportView />;
       case 'settings': return <SettingsView />;
       case 'howto': return <HowTo />;
       case 'write': default: return <WriteView />;

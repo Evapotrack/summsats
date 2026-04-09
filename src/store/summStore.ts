@@ -38,6 +38,8 @@ interface SummState {
     entryText: string;
     address: string;
     timestamp: number;
+    detectedAt: number | null;
+    confirmedAt: number | null;
     status: 'pending' | 'detected' | 'processing' | 'confirmed';
   }>;
 
@@ -126,7 +128,14 @@ export const useSummStore = create<SummState>((set, get) => ({
   setAddressIndex: (addressIndex) => set({ addressIndex }),
   addNotification: (notif) => set(s => ({ entryNotifications: [...s.entryNotifications, notif] })),
   updateNotification: (id, status) => set(s => ({
-    entryNotifications: s.entryNotifications.map(n => n.id === id ? { ...n, status } : n),
+    entryNotifications: s.entryNotifications.map(n => {
+      if (n.id !== id) return n;
+      return {
+        ...n, status,
+        detectedAt: status === 'detected' && !n.detectedAt ? Date.now() : n.detectedAt,
+        confirmedAt: status === 'processing' && !n.confirmedAt ? Date.now() : n.confirmedAt,
+      };
+    }),
   })),
   removeNotification: (id) => set(s => ({
     entryNotifications: s.entryNotifications.filter(n => n.id !== id),

@@ -10,11 +10,12 @@ export function Sidebar() {
 
   const handleLock = async () => { await window.summSats.lockApp(); lockApp(); };
 
-  const navItems: Array<{ id: string; label: string; view: 'write' | 'summary' | 'entries' | 'wallet' | 'settings' | 'howto' }> = [
+  const navItems: Array<{ id: string; label: string; view: 'write' | 'summary' | 'entries' | 'wallet' | 'export' | 'settings' | 'howto' }> = [
     { id: 'write', label: 'Write', view: 'write' },
     { id: 'summary', label: 'Summary', view: 'summary' },
     { id: 'entries', label: 'Entries', view: 'entries' },
     { id: 'wallet', label: 'Wallet', view: 'wallet' },
+    { id: 'export', label: 'Export', view: 'export' },
     { id: 'settings', label: 'Settings', view: 'settings' },
     { id: 'howto', label: 'How To', view: 'howto' },
   ];

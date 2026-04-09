@@ -71,6 +71,14 @@ export function EntryNotifications() {
     return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   };
 
+  const formatDuration = (startMs: number, endMs: number) => {
+    const secs = Math.round((endMs - startMs) / 1000);
+    if (secs < 60) return `${secs}s`;
+    const mins = Math.floor(secs / 60);
+    const rem = secs % 60;
+    return rem > 0 ? `${mins}m ${rem}s` : `${mins}m`;
+  };
+
   const statusText = (status: string) => {
     switch (status) {
       case 'pending': return 'Awaiting payment...';
@@ -109,6 +117,9 @@ export function EntryNotifications() {
               <span className="text-white text-sm font-medium">Entry #{notif.entryNumber}</span>
               <span className="text-gray-600 text-xs ml-2">{formatTime(notif.timestamp)}</span>
               <span className={`text-xs ml-2 ${statusColor(notif.status)}`}>{statusText(notif.status)}</span>
+              {notif.status === 'confirmed' && notif.detectedAt && notif.confirmedAt && (
+                <span className="text-gray-600 text-xs ml-2">({formatDuration(notif.detectedAt, notif.confirmedAt)})</span>
+              )}
             </div>
           </div>
           <button onClick={() => {

@@ -23,6 +23,8 @@ export function PaymentScreen() {
         entryText: draftText,
         address,
         timestamp: Date.now(),
+        detectedAt: null,
+        confirmedAt: null,
         status: 'pending',
       });
       setDraftText('');
