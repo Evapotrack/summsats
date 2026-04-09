@@ -44,10 +44,12 @@ function getSystemPrompt(tone: SummaryTone): string {
 function stripWrappers(text: string): string {
   let cleaned = text.trim();
   const preamblePatterns = [
-    /^(?:here\s+is|here's|updated|sure[!,.]?\s*here'?s?)\s+(?:the\s+)?(?:updated\s+)?(?:500[- ]word\s+)?summary[:\s]*/i,
+    /^#+ .*(?:summary|overview).*\n+/i,
+    /^(?:here\s+is|here's|updated|sure[!,.]?\s*here'?s?)\s+(?:the\s+)?(?:updated\s+)?(?:\d+[- ]word\s+)?summary[:\s]*/i,
     /^(?:based on|incorporating|reflecting)\s+(?:the\s+)?(?:new\s+)?entry[,:\s]*/i,
-    /^(?:here's the updated 500-word summary)[^:]*[:\s]*/i,
+    /^(?:here's the updated \d+-word summary)[^:]*[:\s]*/i,
     /^(?:the following is|below is)\s+(?:the\s+)?(?:updated\s+)?summary[:\s]*/i,
+    /^\*\*(?:project\s+)?summary\*\*[:\s]*/i,
   ];
   for (const pattern of preamblePatterns) {
     cleaned = cleaned.replace(pattern, '');

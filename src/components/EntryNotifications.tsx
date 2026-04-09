@@ -100,10 +100,10 @@ export function EntryNotifications() {
   };
 
   return (
-    <div className="space-y-2 px-6 pt-4">
+    <div className="space-y-1 px-4 pt-2">
       {entryNotifications.map(notif => (
-        <div key={notif.id} className="flex items-center justify-between bg-gray-900 rounded-lg px-4 py-3 border border-gray-800">
-          <div className="flex items-center gap-3 min-w-0">
+        <div key={notif.id} className="flex items-center justify-between bg-gray-900 rounded-lg px-3 py-2 border border-gray-800">
+          <div className="flex items-center gap-2 min-w-0">
             {notif.status === 'confirmed' ? (
               <svg className="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
