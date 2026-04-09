@@ -341,7 +341,42 @@ UNIQUE TO SUMMSATS:
 
 
 ================================================================================
+APPENDIX: BRUTE-FORCE COST ANALYSIS (SATS-DENOMINATED)
+================================================================================
+
+How much would it cost, in satoshis, to brute-force the encryption?
+
+ENCRYPTION ARCHITECTURE:
+    AES-256-GCM with per-entry keys derived via HKDF from a master key.
+    Master key: HMAC-SHA512("summsats-encryption", BIP39 seed).
+    The weakest link is the 12-word BIP39 seed (128 bits of entropy).
+
+COST BENCHMARK — BITCOIN MINING AS COMPUTE PROXY:
+    Network hashrate:       ~600 EH/s (6 × 10^20 SHA-256 ops/sec)
+    Network revenue:        ~900 BTC/day (~32.85 trillion sats/year)
+    Cost per hash:          ~1.74 × 10^-15 sats
+
+BRUTE-FORCE COST — BIP39 SEED (128-BIT):
+    Operations needed:      2^128 ≈ 3.4 × 10^38
+    Cost in sats:           ~5.9 × 10^23 (590 sextillion sats)
+    Cost in BTC:            ~5.9 × 10^15 (5.9 quadrillion BTC)
+    Multiple of total BTC:  ~280 billion times the 21 million supply cap
+
+COMPARISON TO ENTRY COST:
+    Entry payment cost:     1,500 sats
+    Seed crack cost:        ~5.9 × 10^23 sats
+    Ratio:                  ~3.9 × 10^20 (390 quintillion to 1)
+
+CONCLUSION:
+    The 1,500 sat entry cost is an economic/UX decision, not a security
+    one. The cryptography is unbreakable regardless of entry contents.
+    Even if every satoshi that will ever exist were at stake, brute-force
+    would cost 280 billion times that amount in compute energy.
+
+
+================================================================================
 Document created: April 6, 2026
+Updated: April 8, 2026 (audit fixes, brute-force cost appendix)
 Creator: Andrew Brown
 All rights reserved.
 ================================================================================
