@@ -19,7 +19,9 @@ app must be robust against every way the AI can deviate from instructions.
 SECTION 1 — WORD COUNT ENFORCEMENT
 ================================================================================
 
-REQUIREMENT: The summary must be exactly 500 words.
+REQUIREMENT: The summary must be between 150 and 500 words. The summary
+starts shorter with fewer entries and grows toward 500 words as more
+material is added.
 
 DEFINITION OF "WORD": A word is any sequence of non-whitespace characters
 separated by whitespace. This matches the behavior of: text.trim().split(
@@ -32,16 +34,18 @@ VALIDATION PROCEDURE:
     2. Strip any leading/trailing whitespace.
     3. Split on whitespace: words = text.trim().split(/\s+/)
     4. Count: wordCount = words.length
-    5. If wordCount === 500: ACCEPT.
-    6. If wordCount !== 500: REJECT.
+    5. If wordCount >= 150 && wordCount <= 500: ACCEPT.
+    6. If wordCount < 150 || wordCount > 500: REJECT.
 
-TOLERANCE: None. The system prompt says "Exactly 500 words. Not 499, not
-501." The app enforces this literally. No +/- tolerance.
+TOLERANCE: The valid range is 150-500 words inclusive. Below 150 is too
+sparse to be useful. Above 500 exceeds the constraint. The summary should
+naturally grow from shorter (around 150-200 words with few entries) toward
+the 500-word ceiling as more material accumulates.
 
 REJECTION HANDLING:
     1. First rejection: retry the same AI call with identical input.
-    2. Second rejection (retry also not 500 words): queue the summary
-       update for later. Do NOT store the non-500-word response.
+    2. Second rejection (retry also outside 150-500 range): queue the
+       summary update for later. Do NOT store the out-of-range response.
     3. The entry is already committed (payment confirmed). The summary
        simply does not update for this entry.
     4. On the next successful entry, the queued update is processed along
@@ -49,12 +53,12 @@ REJECTION HANDLING:
        entries since the last successful update.
 
 EXPECTED DRIFT PATTERNS:
-    - Haiku occasionally produces 498-502 word responses despite the "exactly
-      500" instruction. This is the most common deviation.
-    - Less commonly, Haiku may produce significantly shorter responses
-      (300-400 words) if the input entries are very short or repetitive.
-    - Very rarely, Haiku may produce longer responses (550+) when entries
-      contain dense technical content.
+    - Early summaries (entries 2-5) should be shorter, around 150-250
+      words. The AI should not pad sparse material to reach 500 words.
+    - As entries accumulate (10+), the summary should approach 400-500
+      words as there is more material to synthesize.
+    - Very rarely, Haiku may produce responses outside the range when
+      entries contain dense technical content or are very short/repetitive.
 
 MONITORING: Log (without content) every AI call result: word count, accepted
 or rejected, retry count. This data helps identify if a model update changes
@@ -70,7 +74,7 @@ no commentary, no meta-text.
 
 COMMON PREAMBLE PATTERNS TO DETECT AND STRIP:
     - "Here is the updated summary:"
-    - "Updated 500-word summary:"
+    - "Updated summary:"
     - "Sure! Here's the revised summary:"
     - "Based on the new entry, here is the updated summary:"
     - Any line before the first paragraph that contains "summary" or "update"
@@ -85,11 +89,11 @@ DETECTION STRATEGY:
        string matching against common phrases).
     2. Check if the last line matches known postamble patterns.
     3. If detected: strip the preamble/postamble, recount words.
-    4. If the stripped text is exactly 500 words: ACCEPT the stripped version.
-    5. If the stripped text is not 500 words: REJECT entirely, retry.
+    4. If the stripped text is between 150 and 500 words: ACCEPT the stripped version.
+    5. If the stripped text is outside 150-500 words: REJECT entirely, retry.
 
 IMPLEMENTATION NOTE: Preamble stripping is a best-effort convenience, not a
-requirement. If stripping produces a valid 500-word summary, use it. If not,
+requirement. If stripping produces a valid summary (150-500 words), use it. If not,
 reject and retry. Never attempt to "fix" the AI's output beyond simple
 stripping — the summary content must come entirely from the AI.
 
@@ -152,7 +156,7 @@ the task and rules) rather than the user's injected instruction. The entry
 is treated as content to summarize, not as an instruction to follow.
 
 App enforcement: The word count validator catches the most obvious failure
-mode (a 1,000-word response would be rejected). Beyond word count, the app
+mode (a 1,000-word response would be rejected as over 500). Beyond word count, the app
 cannot detect if the AI has been partially derailed (e.g., producing a
 500-word cat essay instead of a summary). This is a known limitation of
 language model safety. The user is writing their own entries — self-injection
@@ -198,8 +202,8 @@ App enforcement:
 SECTION 4 — SUMMARY SATURATION
 ================================================================================
 
-At some point — likely between entry 100 and entry 300 — the 500-word summary
-will be "saturated." Every word is meaningful, every sentence carries weight,
+At some point — likely between entry 100 and entry 300 — the summary (now at
+or near its 500-word ceiling) will be "saturated." Every word is meaningful, every sentence carries weight,
 and new entries require genuine compression of older material to make room.
 
 EXPECTED BEHAVIOR AT SATURATION:
@@ -239,10 +243,9 @@ POTENTIAL FAILURE MODES AT SATURATION:
        abstract as the AI struggles to compress too many themes into 500
        words.
        Detection: human review. The user reads the summary regularly.
-       Mitigation: None at the app level. The 500-word constraint is the
-       design choice. Increasing it (e.g., to 750 or 1,000 words) would
-       delay saturation but reduce the forcing function that makes the
-       summary valuable.
+       Mitigation: None at the app level. The 500-word ceiling is the
+       design choice. Increasing it would delay saturation but reduce the
+       forcing function that makes the summary valuable.
 
 
 ================================================================================
@@ -258,27 +261,27 @@ INPUT TO AI:
     - Entry 2 text
 
 EXPECTED BEHAVIOR:
-    - The AI produces a 500-word summary from two entries.
-    - With only two entries, the summary will be sparser than later versions.
-    - The AI may pad with analysis, connections, or implications drawn from
-      the two entries.
+    - The AI produces a shorter summary from two entries, likely 150-250
+      words. There is no need to reach 500 words with only two inputs.
+    - The summary should capture the key ideas from both entries without
+      padding or adding outside knowledge.
 
 POTENTIAL ISSUES:
     - If both entries are very short (e.g., 10 words each), the AI may
-      struggle to produce 500 words without adding its own content. The
-      system prompt says "Draw ONLY from the entries and existing summary.
-      Never add outside knowledge." With very little input, the AI may
-      either (a) pad with rephrasing, (b) violate the rule and add general
-      knowledge, or (c) produce fewer than 500 words.
+      struggle to produce even 150 words without adding its own content.
+      The system prompt says "Draw ONLY from the entries and existing
+      summary. Never add outside knowledge." With very little input, the
+      AI may either (a) pad with rephrasing, (b) violate the rule and add
+      general knowledge, or (c) produce fewer than 150 words.
     - Option (a) is acceptable. Options (b) and (c) trigger rejection.
 
 APP HANDLING:
-    - Same validation as all other summaries: exactly 500 words, no preamble.
+    - Same validation as all other summaries: 150-500 words, no preamble.
     - If the first summary fails validation after retry, the Summary view
       shows: "Summary pending — AI processing will retry on your next entry."
     - The user's third entry triggers another attempt with entry 1 + entry 2
       + entry 3 as input (still no prior summary). The additional input may
-      help the AI produce a valid 500-word summary.
+      help the AI produce a valid summary.
 
 
 ================================================================================
@@ -291,17 +294,17 @@ MODEL: claude-haiku-4-5-20251001
     eliminate the 750x margin that makes the economic model work.
 
 MAX TOKENS: 1,000
-    The 500-word summary requires approximately 650-750 tokens. Setting
+    A 500-word summary requires approximately 650-750 tokens. Setting
     max_tokens to 1,000 provides headroom for preamble (which is stripped)
     and slight overruns (which are rejected). Setting it higher wastes
     tokens if the AI is verbose. Setting it lower risks cutting off valid
-    500-word responses.
+    responses near the 500-word ceiling.
 
 TEMPERATURE: Default (not specified in API call)
     Haiku's default temperature is appropriate for this task. Lower
     temperature would make summaries more deterministic but potentially
     less nuanced. Higher temperature would increase variability and risk
-    of word count deviation.
+    of responses outside the valid range.
 
 TIMEOUT: 30 seconds
     If the API does not respond within 30 seconds, treat as a network error.

@@ -2,7 +2,7 @@
 
 **Pay to think. Read for free.**
 
-SummSats is an experimental macOS desktop app that combines Bitcoin micropayments with AI-assisted thinking. You write entries about a project — ideas, research, observations, decisions — and pay 1,500 sats per entry. Each entry is encrypted, hashed into a tamper-evident chain, and stored locally. An AI (Claude Haiku) silently processes each entry and maintains an evolving 500-word summary that captures patterns, connections, contradictions, and conclusions across everything you have written.
+SummSats is an experimental macOS desktop app that combines Bitcoin micropayments with AI-assisted thinking. You write entries about a project — ideas, research, observations, decisions — and pay 1,500 sats per entry. Each entry is encrypted, hashed into a tamper-evident chain, and stored locally. An AI (Claude Haiku) silently processes each entry and maintains an evolving summary (150-500 words) that captures patterns, connections, contradictions, and conclusions across everything you have written. The summary starts shorter with fewer entries and grows toward 500 words as more material is added.
 
 This is not a product pitch. This is an experiment in what happens when you add real economic friction to the act of recording thoughts, and let AI find the threads between them. I have not researched whether similar projects exist.
 
@@ -12,17 +12,17 @@ This is not a product pitch. This is an experiment in what happens when you add 
 
 **Pay.** A QR code appears with a Bitcoin address. Send exactly 1,500 sats from any wallet. Wait for one on-chain confirmation (~10 minutes).
 
-**Process.** Once confirmed, your entry is compressed, encrypted with AES-256-GCM, and stored locally. The AI reads the current summary, your last 10 entries, and the new entry, then produces an updated 500-word summary. The summary is always exactly 500 words — no more, no less.
+**Process.** Once confirmed, your entry is compressed, encrypted with AES-256-GCM, and stored locally. The AI reads the current summary, your last 10 entries, and the new entry, then produces an updated summary (150-500 words). The summary starts shorter with fewer entries and grows toward 500 words as more material is added.
 
 **Chain.** Each entry is hashed (SHA-256) with the previous entry's hash and the current Shannon entropy of the summary. This creates a tamper-evident chain where changing any entry breaks the chain from that point forward. Your entries are immutable — paid for and permanent.
 
 ## Core Features
 
-### The 500-Word Summary
-A single page that distills everything you have written. It updates after every entry (minimum 2 required). Early summaries are sparse. Late summaries are dense and refined — the AI compresses older patterns to make room for new ones. The summary reflects only your thinking, never outside knowledge.
+### The Rolling Summary (150-500 Words)
+A single page that distills everything you have written. It updates after every entry (minimum 2 required). Early summaries are shorter (around 150-200 words). As entries accumulate, the summary grows toward 500 words and becomes denser and more refined — the AI compresses older patterns to make room for new ones. The summary reflects only your thinking, never outside knowledge.
 
 ### The Entropy Index
-Shannon entropy calculated on the binary (UTF-8) representation of the 500-word summary. Returns a number between 0 and 8 (English text typically 4.0-5.0). It measures the informational diversity of your summary.
+Shannon entropy calculated on the binary (UTF-8) representation of the summary. Returns a number between 0 and 8 (English text typically 4.0-5.0). It measures the informational diversity of your summary.
 
 - **Rising entropy** — thinking is diverging, pulling in new threads
 - **Falling entropy** — thinking is converging toward conclusions
@@ -85,7 +85,7 @@ Route all Bitcoin queries (mempool.space) through Tor for IP-level privacy. Togg
 - **Long-term research projects.** A PhD student collecting observations across months. Diverse inputs — papers, field notes, hypotheses, data points — processed into a single evolving summary that surfaces connections invisible in scattered notes.
 - **Creative development.** A writer developing a novel, album, or film. Record fragments — character ideas, plot threads, thematic observations — and the AI finds narrative threads across hundreds of entries. The entropy index shows when thinking is diverging (exploring) vs converging (resolving).
 - **Decision journals.** Founders, investors, or anyone making high-stakes decisions over time. Record reasoning as it happens. The immutable chain preserves the full arc — including wrong turns and changed minds. The AI shows how understanding evolved.
-- **Learning and synthesis.** A self-taught developer or researcher reading across disciplines. Record what you learn from each source. The 500-word summary distills cross-domain connections you would not notice manually.
+- **Learning and synthesis.** A self-taught developer or researcher reading across disciplines. Record what you learn from each source. The rolling summary distills cross-domain connections you would not notice manually.
 - **Accountability and intellectual honesty.** The 1,500 sat cost filters noise. The immutability prevents editing out mistakes. The hash chain proves entries existed in order and were never altered. Process over conclusions.
 
 ## Who This Is NOT For

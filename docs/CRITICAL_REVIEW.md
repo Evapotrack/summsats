@@ -6,7 +6,7 @@
 
 ## What This Project Claims To Do
 
-SummSats claims to be a "thinking tool" that combines Bitcoin micropayments with AI-assisted context building. You write entries, pay 1,500 sats each, and an AI maintains a 500-word rolling summary. Entries are encrypted and linked in a tamper-evident hash chain with Shannon entropy as a structural element.
+SummSats claims to be a "thinking tool" that combines Bitcoin micropayments with AI-assisted context building. You write entries, pay 1,500 sats each, and an AI maintains a rolling summary (150-500 words). Entries are encrypted and linked in a tamper-evident hash chain with Shannon entropy as a structural element.
 
 ## What It Actually Does Well
 
@@ -16,7 +16,7 @@ SummSats claims to be a "thinking tool" that combines Bitcoin micropayments with
 
 **The immutability design is philosophically interesting.** You can't edit entries. Wrong turns are preserved. The AI sees the full arc of your thinking, including contradictions and reversals. This forces honesty in a way that editable note-taking apps don't. Whether users actually want this is an open question, but the design commitment is clear.
 
-**The 500-word constraint is a non-trivial prompt engineering challenge.** Maintaining a fixed-length summary across unlimited inputs — compressing older patterns to make room for new ones while preserving important context — is a hard problem. The word count validation, preamble stripping, and retry logic show real engineering thought.
+**The summary constraint (150-500 words) is a non-trivial prompt engineering challenge.** Maintaining a bounded summary across unlimited inputs — starting shorter with few entries and growing toward the 500-word ceiling, compressing older patterns to make room for new ones while preserving important context — is a hard problem. The word count validation, preamble stripping, and retry logic show real engineering thought.
 
 **AI failure resilience is well-designed.** If the AI call fails, the entry is still permanent (already paid, encrypted, hashed). Only the summary doesn't update. This separation of chain integrity from AI availability is the correct architecture.
 
@@ -32,7 +32,7 @@ For a project that emphasizes sovereignty and self-custody, sending your private
 
 **The ~10 minute confirmation wait per entry is painful.** Write a thought, pay, wait 10 minutes. Write another thought, pay, wait 10 minutes. For a "thinking tool," this cadence is brutally slow. A user with 5 related thoughts needs 50 minutes and 7,500 sats to record them all. The tool optimizes for deliberation over flow.
 
-**The 500-word summary is both a strength and a limitation.** At 500 words, the summary is readable on one screen. But after 100+ entries spanning months of diverse research, 500 words is not enough to capture the full complexity. Important patterns will be compressed to nothing. The user's remedy is to read individual entries — but then the summary isn't doing its job.
+**The 500-word ceiling is both a strength and a limitation.** At 500 words, the summary is readable on one screen. But after 100+ entries spanning months of diverse research, 500 words is not enough to capture the full complexity. Important patterns will be compressed to nothing. The user's remedy is to read individual entries — but then the summary isn't doing its job.
 
 **No search, no tagging, no organization.** Entries are a flat chronological list. After 50 entries, finding a specific thought requires scrolling. There's no full-text search, no tags, no folders. The summary is supposed to be the organizational layer, but if you need to find a specific data point from entry #23, you're on your own.
 
@@ -69,7 +69,7 @@ Bitcoin is not technically necessary. It is philosophically central. Remove Bitc
 
 - Anyone uncomfortable sending private thoughts to Anthropic's API
 - Anyone who needs fast, frictionless note-taking (use Obsidian)
-- Anyone expecting the 500-word summary to replace reading their own entries
+- Anyone expecting the summary to replace reading their own entries
 - Anyone who can't afford or doesn't want to spend sats on recording thoughts
 
 ## Verdict

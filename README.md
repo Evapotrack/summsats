@@ -11,13 +11,15 @@ A macOS desktop app where the user creates a project, types thoughts into a
 simple text input, and pays 1,000 sats per entry. Each entry is encrypted,
 hashed into a tamper-evident chain, and stored locally. An AI (Claude Haiku)
 silently processes each input against the current summary and recent entries,
-maintaining an evolving 500-word project summary — a single page that captures the patterns,
+maintaining an evolving summary (150-500 words) that captures the patterns,
 connections, contradictions, and conclusions from everything the user has written.
+The summary starts shorter with fewer entries and grows toward 500 words as more
+material is added.
 
 The app is a thinking tool. The user pours in diverse inputs — research,
 observations, ideas, decisions, creative fragments — and the AI finds threads
-between them. The 500-word summary gets denser and more refined with every
-entry, forcing the AI to prioritize what matters most.
+between them. The summary gets denser and more refined with every entry, growing toward
+500 words and forcing the AI to prioritize what matters most.
 
 One project per app in V1. Pay to think. Read for free.
 
@@ -71,13 +73,13 @@ Hash chain: each entry hashed (SHA-256) with the previous entry's hash
   Optional: anchor latest hash to Bitcoin via OP_RETURN (32 bytes, deferred).
 
 Entropy index: Shannon entropy calculated on the binary (UTF-8) representation
-  of the current 500-word summary after each update. Returns a single number
+  of the current summary after each update. Returns a single number
   between 0 and 8. English text typically falls between 4.0-5.0.
 
   What it measures: informational density and diversity of the summary.
   Higher entropy = more diverse topics, varied vocabulary, more tension
-  between different concepts coexisting in 500 words. Lower entropy =
-  more focused, repetitive, narrow.
+  between different concepts. Lower entropy = more focused, repetitive,
+  narrow.
 
   What the trajectory tells you:
     Rising entropy — thinking is diverging, incorporating diverse inputs
@@ -91,9 +93,10 @@ Entropy index: Shannon entropy calculated on the binary (UTF-8) representation
   Bitcoin, no external dependency. But the value is hashed into the chain,
   making it a structural element, not just a display metric.
 
-Summary: 500 words. One full page. Tight and distilled. Forces the AI to
-  prioritize. Fits on one screen. Updated after every new entry. Early
-  summaries are sparse. Late summaries are dense and refined.
+Summary: 150 to 500 words. Starts shorter with fewer entries, grows toward
+  500 words as more material is added. Forces the AI to prioritize. Fits on
+  one screen. Updated after every new entry. Early summaries are sparse.
+  Late summaries are dense and refined.
 
 Entries: immutable. Once submitted and paid for, cannot be edited or deleted.
   The 1,000 sats made it permanent. Wrong turns and contradictions preserved.
@@ -131,7 +134,7 @@ WRITE VIEW (default):
 
 SUMMARY VIEW:
   Four elements only:
-  - The 500-word summary text (warm off-white, comfortable line height,
+  - The summary text (warm off-white, comfortable line height,
     readable typography, fills the view)
   - Total entries committed: "48 entries" (text-gray-500, bottom)
   - Entropy index: "Entropy: 4.73" with a subtle copper bar filling
@@ -194,9 +197,9 @@ AI PROCESSING DETAIL
 
 On each new entry:
   1. Read new entry text
-  2. Read existing 500-word summary + last 10 full entries
+  2. Read existing summary + last 10 full entries
   3. Produce:
-     - Updated 500-word summary (compress, refine, prioritize)
+     - Updated summary, 150 to 500 words (compress, refine, prioritize)
      - Updated entropy index (Shannon entropy of summary binary)
   4. Entropy value hashed into the chain with the new entry
   5. Store updated context encrypted alongside raw entry
@@ -218,7 +221,7 @@ and today are invisible unless you manually re-read everything.
 
 With the app: the AI processes each new thought against the accumulated
 summary and recent entries, surfacing patterns, contradictions, and
-evolutions. The 500-word summary distills the most important patterns
+evolutions. The rolling summary distills the most important patterns
 into one page that gets denser with every entry.
 
 The 1,000 sat payment filters signal from noise. If recording a thought
@@ -245,9 +248,9 @@ a side effect, not the cost.
 Hash chain construction teaches tamper-evident data structures — a
 foundational cryptography concept applied to personal data.
 
-The 500-word summary constraint is a non-trivial prompt engineering problem:
-maintaining a fixed-length evolving summary across unlimited inputs requires
-careful design around what to preserve, compress, and drop.
+The summary constraint (150-500 words) is a non-trivial prompt engineering
+problem: maintaining a bounded evolving summary across unlimited inputs
+requires careful design around what to preserve, compress, and drop.
 
 Economic friction as UX is a novel, testable pattern. Whether paying sats
 to write improves the quality of recorded thoughts is a hypothesis that
@@ -346,7 +349,7 @@ Electron hardening (same as vault):
   - Electron fuses hardened
   - npm audit before each release
 
-Privacy approach: minimum data sent to Anthropic API. Only the 500-word
+Privacy approach: minimum data sent to Anthropic API. Only the current
   summary + last 10 entries + new entry text. No wallet data, no seed, no
   metadata, no entry numbers, no timestamps, no hash chain data. Document
   exactly what leaves the device. Anthropic's data retention policy applies.
@@ -374,7 +377,7 @@ Entry 1: user writes, pays 1,000 sats, entry encrypted and stored. Hash
 Entry 2: user writes, pays 1,000 sats, entry encrypted and stored. Hash
   chain: hash(entry_2_text + entry_1_hash). No entropy in this hash — the
   summary is just being generated for the first time. AI processes both
-  entries and produces the first 500-word summary. Entropy index calculated
+  entries and produces the first summary. Entropy index calculated
   for the first time. Summary view populates. The project context is born.
 
 Entry 3+: normal flow. AI reads summary + last 10 entries + new entry.
@@ -390,14 +393,15 @@ across every entry — the same prompt for entry #2 and entry #500.
 
   SYSTEM PROMPT:
   "You are a silent context processor for a personal project. You receive
-  a current 500-word project summary, the last 10 entries, and one new
-  entry. Your job is to produce an updated 500-word summary that captures
+  a current project summary, the last 10 entries, and one new entry. Your
+  job is to produce an updated summary (150 to 500 words) that captures
   the most important patterns, connections, contradictions, and conclusions
-  across all the material.
+  across all the material. Start shorter with fewer entries and grow
+  toward 500 words as more material is added.
 
   Rules:
   - Respond with ONLY the updated summary. No preamble, no commentary.
-  - Exactly 500 words. Not 499, not 501.
+  - Between 150 and 500 words. Shorter when material is sparse, longer as it accumulates.
   - Draw ONLY from the entries and existing summary. Never add outside
     knowledge, general facts, or your own opinions.
   - Prioritize: connections between entries > recurring themes > recent
@@ -412,7 +416,8 @@ across every entry — the same prompt for entry #2 and entry #500.
 
   For the first summary (entry 2 — only two entries, no prior summary):
   Same prompt but without the existing summary input. The AI reads both
-  entries and produces the initial 500-word summary from scratch.
+  entries and produces the initial summary from scratch (likely short,
+  around 150-200 words with only two entries).
 
 ===============================================================================
 AI API FAILURE HANDLING
@@ -429,7 +434,7 @@ Then the AI call fails. Three scenarios:
 
   Rate limit: same as network error. Queue and retry.
 
-  Malformed AI response (summary not 500 words, contains preamble, etc.):
+  Malformed AI response (summary outside 150-500 word range, contains preamble, etc.):
   the app rejects the response and retries once. If the retry also fails,
   treat as a failed call — queue for later. Never store a bad summary.
 
@@ -448,7 +453,7 @@ All data stored in user-chosen data folder, encrypted at rest:
     seed.enc           — HD seed, encrypted via safeStorage (macOS Keychain)
     config.enc         — project settings (auto-lock, denomination, network,
                          folder path), encrypted via safeStorage
-    summary.enc        — current 500-word summary, encrypted with HKDF key
+    summary.enc        — current summary (150-500 words), encrypted with HKDF key
     entropy.enc        — entropy history (array of values, one per entry),
                          encrypted with HKDF key
     chain.enc          — hash chain data (array of hashes, one per entry),
@@ -529,8 +534,8 @@ section headers. Sections:
     SummSats is a thinking tool. You write entries about a project —
     ideas, research, observations, decisions, anything — and pay 1,000
     sats per entry. An AI silently processes each entry and maintains a
-    500-word summary that captures the patterns, connections, and
-    contradictions across everything you've written. Your entries are
+    rolling summary (150-500 words) that captures the patterns, connections,
+    and contradictions across everything you've written. Your entries are
     encrypted, immutable, and linked in a tamper-evident hash chain.
 
   "How to write an entry"
@@ -541,13 +546,13 @@ section headers. Sections:
     and the AI updates your summary.
 
   "What is the summary?"
-    The summary is a single page of 500 words that distills everything
+    The summary is a single page (150-500 words) that distills everything
     you've written into the most important patterns, connections, and
     conclusions. It updates after every new entry. Early summaries are
-    sparse. As you add more entries, the summary becomes denser and more
-    refined — the AI compresses older context to make room for new
-    patterns. The summary reflects only your thinking, never outside
-    knowledge.
+    shorter. As you add more entries, the summary grows toward 500 words
+    and becomes denser and more refined — the AI compresses older context
+    to make room for new patterns. The summary reflects only your thinking,
+    never outside knowledge.
 
   "What is the entropy index?"
     The entropy index is a number between 0 and 8 that measures the
@@ -555,8 +560,8 @@ section headers. Sections:
     binary representation of the summary text using Shannon entropy.
 
     Higher entropy (toward 8) means your summary contains diverse topics,
-    varied vocabulary, and more tension between different ideas coexisting
-    in 500 words. Your thinking is broad and divergent.
+    varied vocabulary, and more tension between different ideas. Your
+    thinking is broad and divergent.
 
     Lower entropy (toward 0) means your summary is focused, repetitive,
     and narrow. Your thinking is converging on fewer ideas.

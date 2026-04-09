@@ -29,7 +29,7 @@ CRITICAL (compromise = catastrophic loss):
 
 SENSITIVE (compromise = significant privacy violation):
     - Entry text (raw user thoughts, ideas, research, decisions)
-    - 500-word summary (AI-distilled version of all entries)
+    - Rolling summary, 150-500 words (AI-distilled version of all entries)
     - Hash chain (proves what was written and when)
     - Entropy history (reveals thinking patterns over time)
 
@@ -167,7 +167,7 @@ DATA THAT LEAVES THE DEVICE:
 
     Connection 1 — Anthropic API (api.anthropic.com):
         What is sent:
-            - Current 500-word summary (if it exists)
+            - Current summary (150-500 words, if it exists)
             - Last 10 full entry texts
             - New entry text
             - System prompt (static, contains no user data)
@@ -266,7 +266,7 @@ Scenario: Anthropic's systems are breached and an attacker accesses stored
 API request data.
 
 What the attacker gets:
-    - The user's current 500-word summary at the time of each entry
+    - The user's current summary (150-500 words) at the time of each entry
     - The last 10 entry texts at the time of each entry
     - The new entry text for each entry
     - The system prompt (static, no user data)

@@ -44,24 +44,27 @@ Fail: Any confirmed entry missing or corrupted after restart.
 --------------------------------------------------------------------------------
 C2: SUMMARY CORRUPTION
 --------------------------------------------------------------------------------
-What this tests: The summary is a valid 500-word text that accurately
+What this tests: The summary is between 150 and 500 words, accurately
 reflects the user's entries, and does not become corrupted over time.
 
 Procedure:
     1. Submit 2 entries with clearly distinct topics (e.g., entry 1 about
        cooking, entry 2 about astronomy).
     2. Verify: first summary generated. Check it references both topics.
-    3. Count words in the summary. Must be exactly 500.
+    3. Count words in the summary. Must be between 150 and 500.
     4. Submit 10 more entries on varied topics.
-    5. After each entry, verify the summary updates and remains 500 words.
+    5. After each entry, verify the summary updates and stays within
+       150-500 words. Word count should grow as entries accumulate.
     6. Close and relaunch the app after every 3rd entry.
     7. After all 12 entries: export the summary. Verify the exported .txt
        file matches what is displayed in the Summary view.
 
-Pass: Summary is always exactly 500 words. Reflects entry content accurately.
-Survives restarts. Export matches display.
-Fail: Word count deviates from 500. Summary contains AI-generated content
-not derived from entries. Summary does not update. Export differs from display.
+Pass: Summary is always between 150 and 500 words. Grows toward 500 as
+entries accumulate. Reflects entry content accurately. Survives restarts.
+Export matches display.
+Fail: Word count outside 150-500 range. Summary contains AI-generated
+content not derived from entries. Summary does not update. Export differs
+from display.
 
 --------------------------------------------------------------------------------
 C3: HASH CHAIN BREAK
@@ -317,7 +320,7 @@ inject unintended content.
 Procedure (requires ability to mock API responses):
     1. Submit an entry.
     2. Intercept the AI response and replace it with:
-       a) A response with 600 words (over the 500 limit)
+       a) A response with 600 words (over the 500-word ceiling)
        b) A response with preamble: "Sure! Here is the summary: ..."
        c) A response containing HTML/script tags
        d) An empty response
@@ -405,12 +408,14 @@ Procedure:
     1. Submit 20 entries, each with very different content lengths (from
        single sentences to 2,000-word essays).
     2. After each entry, count words in the summary.
-    3. Verify: every summary is exactly 500 words.
-    4. If any summary deviates, check the retry logic: the app should
-       reject non-500-word responses and retry once.
+    3. Verify: every summary is between 150 and 500 words.
+    4. Verify: word count trends upward as entries accumulate.
+    5. If any summary falls outside 150-500, check the retry logic: the
+       app should reject out-of-range responses and retry once.
 
-Pass: All 20 summaries are exactly 500 words.
-Fail: Any summary deviates from exactly 500 words after retry.
+Pass: All 20 summaries are between 150 and 500 words. Word count grows
+over time as more material is added.
+Fail: Any summary outside the 150-500 word range after retry.
 
 --------------------------------------------------------------------------------
 M6: APP CLOSE DURING AI PROCESSING
@@ -495,7 +500,7 @@ section, payment screen amount.
 U5: SUMMARY EXPORT
 --------------------------------------------------------------------------------
 Procedure: Export summary as .txt. Open the file in TextEdit. Verify: plain
-text, exactly 500 words, matches the displayed summary. No encryption, no
+text, between 150 and 500 words, matches the displayed summary. No encryption, no
 metadata, no extra formatting.
 
 --------------------------------------------------------------------------------

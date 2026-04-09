@@ -29,14 +29,16 @@ research, observations, decisions, creative fragments, anything — and pays
 1,500 sats (roughly $0.90 at $60,000 per Bitcoin) per entry. Each entry is
 encrypted, hashed into a tamper-evident chain, and stored locally. An AI
 model (Claude Haiku by Anthropic) silently processes each new entry against
-the accumulated context and maintains a continuously evolving 500-word
-summary that captures patterns, connections, contradictions, and conclusions
-across everything the user has written.
+the accumulated context and maintains a continuously evolving summary
+(150-500 words) that captures patterns, connections, contradictions, and
+conclusions across everything the user has written. The summary starts
+shorter with fewer entries and grows toward 500 words as more material
+is added.
 
 The app is a thinking tool, not a chat interface. The user never messages the
 AI directly. They write into their project. The AI works in the background.
-The output is a single page — 500 words — that gets denser and more refined
-with every entry, forcing the AI to prioritize what matters most.
+The output is a single page — 150 to 500 words — that gets denser and more
+refined with every entry, forcing the AI to prioritize what matters most.
 
 One project per app. Pay to think. Read for free.
 
@@ -64,9 +66,9 @@ minutes), the entry is compressed with zlib, encrypted with AES-256-GCM
 using a key derived from the HD seed, hashed into the tamper-evident chain,
 and stored locally. Then the AI processes the entry and updates the summary.
 
-READING THE SUMMARY: The Summary view shows four things: the 500-word
-summary text, the total entry count, the entropy index (a number between 0
-and 8 measuring the informational diversity of the summary), and an Export
+READING THE SUMMARY: The Summary view shows four things: the summary text
+(150-500 words), the total entry count, the entropy index (a number between
+0 and 8 measuring the informational diversity of the summary), and an Export
 button that saves the summary as a plain text file for free. That is all.
 No dates, no graphs, no metadata. The summary requires a minimum of two
 entries before it is generated — the AI needs at least two inputs to find
@@ -88,7 +90,7 @@ TOPIC 3: WHAT IS THE ENTROPY INDEX?
 ================================================================================
 
 The entropy index is a single number between 0 and 8 calculated using Shannon
-entropy on the binary (UTF-8) representation of the 500-word summary. It
+entropy on the binary (UTF-8) representation of the summary. It
 measures the informational density and diversity of the summary's content.
 English text typically falls between 4.0 and 5.0.
 
@@ -100,7 +102,7 @@ multiplied by its logarithm base 2.
 What the entropy number means:
 
 Higher entropy (toward 8) means the summary contains diverse topics, varied
-vocabulary, and more tension between different ideas coexisting in 500 words.
+vocabulary, and more tension between different ideas.
 The user's thinking is broad and divergent.
 
 Lower entropy (toward 0) means the summary is focused, uses repetitive
@@ -199,15 +201,15 @@ Claude family. It is chosen specifically because it is cheap (making the 750x
 margin possible) and because the task — compressing and summarizing user-
 written text — does not require the reasoning power of larger models.
 
-On each new entry, the AI receives three inputs: the current 500-word summary
-(if it exists), the last 10 full entry texts, and the new entry text. It
-produces one output: an updated 500-word summary. The total input is
+On each new entry, the AI receives three inputs: the current summary (if it
+exists), the last 10 full entry texts, and the new entry text. It produces
+one output: an updated summary (150-500 words). The total input is
 approximately 6,000 words (roughly 8,000 tokens). This cost stays flat
 forever regardless of the total number of entries, because only the most
 recent 10 are sent along with the rolling summary.
 
 The system prompt constrains the AI strictly. It must respond with only the
-updated summary — no preamble, no commentary. Exactly 500 words. It must
+updated summary — no preamble, no commentary. Between 150 and 500 words. It must
 draw only from the entries and existing summary, never adding outside
 knowledge. It prioritizes connections between entries over recurring themes,
 recurring themes over recent developments, recent developments over
@@ -315,12 +317,12 @@ usage will validate or disprove. No existing product tests this pattern with
 real economic cost (as opposed to psychological friction like confirmation
 dialogs).
 
-Third, the 500-word summary constraint is a non-trivial prompt engineering
-problem. Maintaining a fixed-length evolving summary across unlimited inputs
-requires careful design around what to preserve, compress, and drop. The
-summary must get denser over time without losing important context from early
-entries. This is a pattern that transfers to any application needing rolling
-AI summarization of accumulating data.
+Third, the summary constraint (150-500 words) is a non-trivial prompt
+engineering problem. Maintaining a bounded evolving summary across unlimited
+inputs requires careful design around what to preserve, compress, and drop.
+The summary starts shorter and grows toward the ceiling as material
+accumulates. This is a pattern that transfers to any application needing
+rolling AI summarization of accumulating data.
 
 Fourth, hash chain construction with entropy as a structural element teaches
 tamper-evident data structures — a foundational cryptography concept applied

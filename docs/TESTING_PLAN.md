@@ -31,16 +31,16 @@
 **Fail:** Any confirmed entry missing or corrupted.
 
 ### C2: Summary Integrity
-**What:** Summary is valid 500 words and reflects entries accurately.
+**What:** Summary is between 150 and 500 words and reflects entries accurately.
 **Procedure:**
 1. Commit 3 entries on a specific topic
-2. Check Summary view — verify 500 words (count manually or with tool)
+2. Check Summary view — verify word count is between 150 and 500
 3. Verify summary references content from all 3 entries
 4. Commit 2 more entries on a different topic
-5. Verify summary now includes both topics
+5. Verify summary now includes both topics and word count has grown
 
-**Pass:** Summary is exactly 500 words and reflects entry content.
-**Fail:** Summary wrong word count, or ignores entry content.
+**Pass:** Summary is between 150 and 500 words and reflects entry content.
+**Fail:** Summary outside 150-500 word range, or ignores entry content.
 
 ### C3: Hash Chain Integrity
 **What:** Chain is tamper-evident and computable from entries.
@@ -248,7 +248,7 @@
 ### U3: Export Summary
 **What:** Export saves summary as .txt file.
 **Procedure:** Click Export in Summary view, save file, open it.
-**Pass:** File contains exactly the 500-word summary.
+**Pass:** File contains the summary text (150-500 words).
 
 ### U4: QR Code Scannability
 **What:** Payment QR scans with phone wallet.
@@ -278,5 +278,5 @@ All must pass before real sats:
 - [ ] `npm audit` — no critical vulnerabilities
 - [ ] Seed backup → full restore cycle verified
 - [ ] Testnet full entry flow completed (submit → pay → summary → chain)
-- [ ] AI summary produces valid 500-word output
+- [ ] AI summary produces valid output (150-500 words)
 - [ ] Hash chain verified against manual computation

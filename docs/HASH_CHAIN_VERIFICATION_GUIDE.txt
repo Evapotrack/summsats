@@ -69,7 +69,7 @@ HOW TO CALCULATE SHANNON ENTROPY
 ================================================================================
 
 Shannon entropy is calculated on the binary (UTF-8) representation of the
-500-word summary text. The formula is:
+summary text (150-500 words). The formula is:
 
     H = - SUM( p(x) * log2(p(x)) ) for each byte value x that appears
 
