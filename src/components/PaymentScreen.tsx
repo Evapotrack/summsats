@@ -3,7 +3,8 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useSummStore } from '../store/summStore';
 
 export function PaymentScreen() {
-  const { draftText, setDraftText, setView, entryCount, addNotification } = useSummStore();
+  const { draftText, setDraftText, setView, entryCount, addNotification, entryNotifications } = useSummStore();
+  const pendingCount = entryNotifications.filter(n => n.status !== 'confirmed').length;
   const [address, setAddress] = useState('');
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export function PaymentScreen() {
       // Create notification and let background polling handle the rest
       addNotification({
         id: `entry-${Date.now()}`,
-        entryNumber: entryCount + 1,
+        entryNumber: entryCount + 1 + pendingCount,
         entryText: draftText,
         address,
         timestamp: Date.now(),

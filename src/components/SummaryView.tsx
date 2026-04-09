@@ -5,9 +5,10 @@ import { HelpLink } from './HelpLink';
 export function SummaryView() {
   const { summary, entryCount, entropyHistory, pendingSummaryUpdate } = useSummStore();
   const latestEntropy = entropyHistory.length > 0 ? entropyHistory[entropyHistory.length - 1] : null;
+  const [includeEntries, setIncludeEntries] = React.useState(false);
 
   const handleExport = async () => {
-    await window.summSats.exportSummary();
+    await window.summSats.exportSummary(includeEntries);
   };
 
   if (entryCount < 2) {
@@ -51,9 +52,16 @@ export function SummaryView() {
           </div>
         )}
 
-        <button onClick={handleExport} className="text-gray-500 hover:text-white text-sm transition-colors">
-          Export
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" checked={includeEntries} onChange={e => setIncludeEntries(e.target.checked)}
+              className="accent-amber-700 w-3.5 h-3.5" />
+            <span className="text-gray-500 text-sm">Include entries</span>
+          </label>
+          <button onClick={handleExport} className="text-gray-500 hover:text-white text-sm transition-colors">
+            Export
+          </button>
+        </div>
       </div>
     </div>
   );

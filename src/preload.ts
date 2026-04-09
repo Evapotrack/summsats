@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld('summSats', {
   pollEntryPayment: (address: string) => ipcRenderer.invoke('poll-entry-payment', address),
   commitEntry: (text: string) => ipcRenderer.invoke('commit-entry', text),
   loadEntry: (number: number) => ipcRenderer.invoke('load-entry', number),
-  exportSummary: () => ipcRenderer.invoke('export-summary'),
+  exportSummary: (includeEntries: boolean) => ipcRenderer.invoke('export-summary', includeEntries),
 
   // Bitcoin
   getBalance: () => ipcRenderer.invoke('get-balance'),

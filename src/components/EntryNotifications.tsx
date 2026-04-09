@@ -85,7 +85,7 @@ export function EntryNotifications() {
       case 'pending': return 'text-gray-400';
       case 'detected': return 'text-amber-600';
       case 'processing': return 'text-amber-600';
-      case 'confirmed': return 'text-green-500';
+      case 'confirmed': return 'text-green-700';
       default: return 'text-gray-400';
     }
   };
@@ -96,7 +96,7 @@ export function EntryNotifications() {
         <div key={notif.id} className="flex items-center justify-between bg-gray-900 rounded-lg px-4 py-3 border border-gray-800">
           <div className="flex items-center gap-3 min-w-0">
             {notif.status === 'confirmed' ? (
-              <svg className="w-4 h-4 text-green-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-green-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             ) : (

@@ -3,7 +3,8 @@ import { useSummStore } from '../store/summStore';
 import { HelpLink } from './HelpLink';
 
 export function WriteView() {
-  const { entryCount, draftText, setDraftText, setView, confirmationMessage, setConfirmationMessage } = useSummStore();
+  const { entryCount, draftText, setDraftText, setView, confirmationMessage, setConfirmationMessage, entryNotifications } = useSummStore();
+  const pendingCount = entryNotifications.filter(n => n.status !== 'confirmed').length;
 
   const handleSubmit = () => {
     if (!draftText.trim()) return;
@@ -22,13 +23,13 @@ export function WriteView() {
     <div className="flex flex-col h-full p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <span className="text-amber-700 font-mono text-sm">Entry #{entryCount + 1}</span>
+          <span className="text-amber-700 font-mono text-sm">Entry #{entryCount + 1 + pendingCount}</span>
           <HelpLink />
         </div>
       </div>
 
       {confirmationMessage && (
-        <div className="mb-4 text-amber-700 text-sm transition-opacity">{confirmationMessage}</div>
+        <div className="mb-4 text-green-700 text-sm transition-opacity">{confirmationMessage}</div>
       )}
 
       <textarea

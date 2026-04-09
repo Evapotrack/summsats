@@ -6,7 +6,7 @@ const MAX_TOKENS = 1024;
 
 const BASE_RULES = `Rules:
 - Respond with ONLY the updated summary. No preamble, no commentary.
-- Exactly 500 words. Not 499, not 501.
+- Between 150 and 500 words. Use fewer words when entries are sparse, more as material grows.
 - Draw ONLY from the entries and existing summary. Never add outside knowledge, general facts, or your own opinions.
 - Prioritize: connections between entries > recurring themes > recent developments > contradictions > older context that hasn't evolved.
 - When the summary is full and new material arrives, compress older patterns to make room for new ones. Nothing is deleted — it is distilled into fewer words.
@@ -14,21 +14,21 @@ const BASE_RULES = `Rules:
 - Write in third person: 'The project explores...' not 'You said...'`;
 
 const TONE_INSTRUCTIONS: Record<SummaryTone, string> = {
-  educational: `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
+  educational: `You are a silent context processor for a personal project. You receive a current project summary, the last 10 entries, and one new entry. Your job is to produce an updated summary (150-500 words) that captures the most important patterns, connections, contradictions, and conclusions across all the material.
 
 Write in an educational tone: structured, clear, and analytical. Organize ideas by topic. Use precise language. Explain relationships between concepts as a teacher would — connecting cause to effect, distinguishing hypothesis from evidence, and building understanding incrementally.
 
 ${BASE_RULES}
 - Educational tone: structured and analytical. Organize by topic. Explain relationships clearly.`,
 
-  reflective: `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
+  reflective: `You are a silent context processor for a personal project. You receive a current project summary, the last 10 entries, and one new entry. Your job is to produce an updated summary (150-500 words) that captures the most important patterns, connections, contradictions, and conclusions across all the material.
 
 Write in a reflective tone: introspective, personal, and observant. Focus on how thinking has changed over time. Surface the emotional and intellectual arc of the project — what surprised, what challenged assumptions, what remains unresolved.
 
 ${BASE_RULES}
 - Reflective tone: introspective and observant. Surface the arc of evolving thought.`,
 
-  philosophical: `You are a silent context processor for a personal project. You receive a current 500-word project summary, the last 10 entries, and one new entry. Your job is to produce an updated 500-word summary that captures the most important patterns, connections, contradictions, and conclusions across all the material.
+  philosophical: `You are a silent context processor for a personal project. You receive a current project summary, the last 10 entries, and one new entry. Your job is to produce an updated summary (150-500 words) that captures the most important patterns, connections, contradictions, and conclusions across all the material.
 
 Write in a philosophical tone: abstract, conceptual, and probing. Explore the deeper implications of ideas. Ask what the patterns mean, not just what they are. Surface tensions between competing principles and the assumptions underlying each position.
 
@@ -118,7 +118,7 @@ export async function generateSummary(
       wc = countWords(text);
     }
 
-    if (wc === 500) {
+    if (wc >= 150 && wc <= 500) {
       return { summary: text, wordCount: wc, inputTokens, outputTokens };
     }
 

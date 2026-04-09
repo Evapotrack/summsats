@@ -20,8 +20,19 @@ export function HowTo() {
           the hash chain, and the AI updates your summary.
         </Section>
 
+        <Section title="Keep the app open during confirmation">
+          After submitting an entry and returning to Write, the app polls the Bitcoin
+          network every 15 seconds to detect your payment and wait for 1 confirmation.
+          This polling only runs while the app is open.{'\n\n'}
+          If you close or lock the app before an entry is confirmed, the pending entry
+          and its payment link are lost. The sats will still arrive at the address, but
+          the app will not know to check for them or have the entry text to commit.{'\n\n'}
+          Keep SummSats open until all pending entries show &quot;Confirmed&quot; in the
+          notification banner.
+        </Section>
+
         <Section title="What is the summary?">
-          A single page of exactly 500 words that distills everything you have written into
+          A single page of 150 to 500 words that distills everything you have written into
           the most important patterns, connections, and conclusions. It updates after every
           new entry. Early summaries are sparse. As you add more entries, the summary becomes
           denser and more refined — the AI compresses older context to make room for new

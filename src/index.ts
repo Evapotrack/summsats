@@ -243,13 +243,21 @@ ipcMain.handle('load-entry', async (_e, entryNumber: number) => {
   return storage.loadEntry(currentDataFolder, entryNumber, currentMasterKey);
 });
 
-ipcMain.handle('export-summary', async () => {
-  if (!currentProject?.summary || !mainWindow) return false;
+ipcMain.handle('export-summary', async (_e, includeEntries: boolean) => {
+  if (!currentProject?.summary || !mainWindow || !currentDataFolder || !currentMasterKey) return false;
   const result = await dialog.showSaveDialog(mainWindow, {
     defaultPath: 'summsats-summary.txt', filters: [{ name: 'Text', extensions: ['txt'] }],
   });
   if (result.canceled || !result.filePath) return false;
-  fs.writeFileSync(result.filePath, currentProject.summary, 'utf-8');
+  let content = currentProject.summary;
+  if (includeEntries && currentProject.entryCount > 0) {
+    content += '\n\n--- Entries ---\n';
+    for (let i = 1; i <= currentProject.entryCount; i++) {
+      const text = storage.loadEntry(currentDataFolder, i, currentMasterKey);
+      content += `\nEntry #${i}\n${text}\n`;
+    }
+  }
+  fs.writeFileSync(result.filePath, content, 'utf-8');
   return true;
 });
 

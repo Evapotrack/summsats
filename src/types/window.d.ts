@@ -27,7 +27,7 @@ interface SummSatsAPI {
     entropyHistory: number[]; chainHashes: string[]; pendingSummaryUpdate: boolean;
   }>;
   loadEntry(number: number): Promise<string>;
-  exportSummary(): Promise<boolean>;
+  exportSummary(includeEntries: boolean): Promise<boolean>;
   getBalance(): Promise<number>;
   getUtxos(): Promise<Array<{ txid: string; vout: number; value: number; address: string; confirmations: number; derivationIndex: number }>>;
   getFees(): Promise<{ fast: number; medium: number; slow: number }>;

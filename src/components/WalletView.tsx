@@ -18,11 +18,11 @@ export function WalletView() {
   useEffect(() => { refresh(); }, []);
 
   const refresh = async () => {
+    try { setBalance(await window.summSats.getBalance()); } catch { /* ignore */ }
+    try { setUtxos(await window.summSats.getUtxos()); } catch { /* ignore */ }
     try {
-      const [bal, utxoList, feeEst] = await Promise.all([
-        window.summSats.getBalance(), window.summSats.getUtxos(), window.summSats.getFees(),
-      ]);
-      setBalance(bal); setUtxos(utxoList); setFees(feeEst); setFeeRate(feeEst.medium);
+      const feeEst = await window.summSats.getFees();
+      setFees(feeEst); setFeeRate(feeEst.medium);
     } catch { /* ignore */ }
   };
 
@@ -68,7 +68,7 @@ export function WalletView() {
               <div key={`${u.txid}:${u.vout}`} className="flex items-center justify-between px-3 py-2 bg-gray-900/50 rounded-lg text-sm">
                 <span className="text-amber-700 font-mono">{u.value.toLocaleString()} sats</span>
                 <span className="text-gray-500 font-mono text-xs">{u.address.slice(0, 12)}...{u.address.slice(-6)}</span>
-                <span className="text-gray-600 text-xs">{u.confirmations}+ conf</span>
+                <span className="text-green-700 text-xs">{u.confirmations}+ conf</span>
               </div>
             ))}
           </div>
