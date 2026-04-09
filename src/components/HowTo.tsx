@@ -54,6 +54,11 @@ export function HowTo() {
           Plateau — circling similar territory{'\n\n'}
           The entropy value is hashed into your entry chain at each step, making it a
           permanent, tamper-evident record of how your thinking evolved.{'\n\n'}
+          Why binary? Distinction is the most fundamental operation in information
+          theory. By converting the summary to its binary representation — zeros and
+          ones, the most basic distinctions possible — Shannon entropy measures how
+          many meaningful distinctions exist in your thinking. More distinct patterns
+          mean higher entropy. Repetition collapses distinctions and lowers it.{'\n\n'}
           Note: changing the summary tone in Settings will affect entropy. Educational
           tone uses structured, predictable vocabulary (lower entropy). Philosophical
           tone uses abstract, varied vocabulary (higher entropy). If you switch tones

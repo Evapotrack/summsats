@@ -39,18 +39,26 @@ export function SummaryView() {
         {summary || 'No summary yet.'}
       </div>
 
+      {/* Entropy display */}
+      {latestEntropy !== null && (
+        <div className="mb-8 p-4 bg-gray-900/50 rounded-lg border border-gray-800">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-amber-700 font-semibold text-sm">Entropy Index</span>
+            <span className="text-amber-700 font-mono text-lg font-bold">{latestEntropy.toFixed(2)}</span>
+          </div>
+          <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-full bg-amber-700 rounded-full transition-all" style={{ width: `${(latestEntropy / 8) * 100}%` }} />
+          </div>
+          <div className="flex justify-between mt-1">
+            <span className="text-gray-600 text-xs">0 — converging</span>
+            <span className="text-gray-600 text-xs">8 — diverging</span>
+          </div>
+        </div>
+      )}
+
       {/* Bottom stats */}
       <div className="flex items-center justify-between border-t border-gray-800 pt-4">
         <span className="text-gray-500 text-sm">{entryCount} entries</span>
-
-        {latestEntropy !== null && (
-          <div className="flex items-center gap-3">
-            <span className="text-gray-500 text-sm">Entropy: {latestEntropy.toFixed(2)}</span>
-            <div className="w-40 h-2 bg-gray-800 rounded-full overflow-hidden">
-              <div className="h-full bg-amber-700 rounded-full transition-all" style={{ width: `${(latestEntropy / 8) * 100}%` }} />
-            </div>
-          </div>
-        )}
 
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-1.5 cursor-pointer">

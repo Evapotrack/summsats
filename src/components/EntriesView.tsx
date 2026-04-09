@@ -3,7 +3,7 @@ import { useSummStore } from '../store/summStore';
 import { HelpLink } from './HelpLink';
 
 export function EntriesView() {
-  const { entryCount, expandedEntry, setExpandedEntry, readingEntry, setReadingEntry } = useSummStore();
+  const { entryCount, expandedEntry, setExpandedEntry, readingEntry, setReadingEntry, entropyHistory } = useSummStore();
   const [loading, setLoading] = useState(false);
 
   const entries = Array.from({ length: entryCount }, (_, i) => i + 1);
@@ -49,7 +49,12 @@ export function EntriesView() {
                 onClick={() => handleToggle(num)}
                 className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-800/50 transition-colors"
               >
-                <span className="text-amber-700 font-mono text-sm">Entry #{num}</span>
+                <div className="flex items-center gap-3">
+                  <span className="text-amber-700 font-mono text-sm">Entry #{num}</span>
+                  {num >= 2 && entropyHistory[num - 2] !== undefined && (
+                    <span className="text-gray-500 font-mono text-xs">{entropyHistory[num - 2].toFixed(2)}</span>
+                  )}
+                </div>
                 <span className="text-gray-600 text-xs">{expandedEntry === num ? '−' : '+'}</span>
               </button>
               {expandedEntry === num && (
