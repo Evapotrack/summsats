@@ -3,7 +3,7 @@ import { useSummStore } from '../store/summStore';
 
 export function EntryNotifications() {
   const { entryNotifications, updateNotification, removeNotification,
-    setEntryCount, setSummary, setEntropyHistory, setChainHashes, setPendingSummaryUpdate } = useSummStore();
+    setEntryCount, setSummary, setEntropyHistory, setChainHashes, setPendingSummaryUpdate, setSummaryError } = useSummStore();
   const pollRefs = useRef<Map<string, ReturnType<typeof setInterval>>>(new Map());
 
   useEffect(() => {
@@ -49,6 +49,7 @@ export function EntryNotifications() {
             setEntropyHistory(commitResult.entropyHistory);
             setChainHashes(commitResult.chainHashes);
             setPendingSummaryUpdate(commitResult.pendingSummaryUpdate);
+            setSummaryError(commitResult.summaryError);
             updateNotification(notif.id, 'confirmed');
           } catch {
             updateNotification(notif.id, 'confirmed');

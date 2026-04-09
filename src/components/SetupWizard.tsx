@@ -55,6 +55,10 @@ export function SetupWizard({ onComplete }: Props) {
     if (!dataFolder) { setConfigError('Select a data folder.'); return; }
     setConfigError('');
     try {
+      setConfigError('Validating API key...');
+      const validation = await window.summSats.validateApiKey(apiKey.trim());
+      if (!validation.valid) { setConfigError(`API key invalid: ${validation.error || 'Check your key and try again.'}`); return; }
+      setConfigError('');
       await window.summSats.setPassword(password);
       await window.summSats.setApiKey(apiKey.trim());
       if (!isRestore) await window.summSats.storeSeed(seedWords);

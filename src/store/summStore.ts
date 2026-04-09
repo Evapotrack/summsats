@@ -15,6 +15,7 @@ interface SummState {
   entropyHistory: number[];
   chainHashes: string[];
   pendingSummaryUpdate: boolean;
+  summaryError: string | null;
 
   // Write
   draftText: string;
@@ -58,6 +59,7 @@ interface SummState {
   setEntropyHistory: (v: number[]) => void;
   setChainHashes: (v: string[]) => void;
   setPendingSummaryUpdate: (v: boolean) => void;
+  setSummaryError: (v: string | null) => void;
   setDraftText: (v: string) => void;
   setProcessingEntry: (v: boolean) => void;
   setConfirmationMessage: (v: string | null) => void;
@@ -88,6 +90,7 @@ export const useSummStore = create<SummState>((set, get) => ({
   entropyHistory: [],
   chainHashes: [],
   pendingSummaryUpdate: false,
+  summaryError: null,
   draftText: '',
   processingEntry: false,
   confirmationMessage: null,
@@ -112,6 +115,7 @@ export const useSummStore = create<SummState>((set, get) => ({
   setEntropyHistory: (entropyHistory) => set({ entropyHistory }),
   setChainHashes: (chainHashes) => set({ chainHashes }),
   setPendingSummaryUpdate: (pendingSummaryUpdate) => set({ pendingSummaryUpdate }),
+  setSummaryError: (summaryError) => set({ summaryError }),
   setDraftText: (draftText) => set({ draftText }),
   setProcessingEntry: (processingEntry) => set({ processingEntry }),
   setConfirmationMessage: (confirmationMessage) => set({ confirmationMessage }),

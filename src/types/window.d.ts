@@ -8,6 +8,7 @@ interface SummSatsAPI {
   restoreSeed(words: string[]): Promise<boolean>;
   hasApiKey(): Promise<boolean>;
   setApiKey(key: string): Promise<void>;
+  validateApiKey(key: string): Promise<{ valid: boolean; error?: string }>;
   createProject(config: unknown): Promise<void>;
   loadProject(): Promise<{
     entryCount: number; summary: string | null; entropyHistory: number[];
@@ -24,7 +25,7 @@ interface SummSatsAPI {
   pollEntryPayment(address: string): Promise<{ confirmed: boolean; detected?: boolean; txid?: string }>;
   commitEntry(text: string): Promise<{
     entryNumber: number; entryCount: number; summary: string | null;
-    entropyHistory: number[]; chainHashes: string[]; pendingSummaryUpdate: boolean;
+    entropyHistory: number[]; chainHashes: string[]; pendingSummaryUpdate: boolean; summaryError: string | null;
   }>;
   loadEntry(number: number): Promise<string>;
   exportSummary(includeEntries: boolean): Promise<boolean>;

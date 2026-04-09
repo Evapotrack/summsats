@@ -8,7 +8,7 @@ CONCEPT
 ===============================================================================
 
 A macOS desktop app where the user creates a project, types thoughts into a
-simple text input, and pays 1,000 sats per entry. Each entry is encrypted,
+simple text input, and pays 1,500 sats per entry. Each entry is encrypted,
 hashed into a tamper-evident chain, and stored locally. An AI (Claude Haiku)
 silently processes each input against the current summary and recent entries,
 maintaining an evolving summary (150-500 words) that captures the patterns,
@@ -40,13 +40,13 @@ AI: Claude Haiku for processing. Silent — not conversational. The user
   entries. No general knowledge. No outside information. The summary
   reflects the user's thinking, not the AI's.
 
-Economics: 1,000 sats per entry. AI cost ~1-3 sats per entry (Haiku).
+Economics: 1,500 sats per entry. AI cost ~1-3 sats per entry (Haiku).
   App collects sats in its own HD wallet. Developer pays Anthropic API
   bill separately. No exchange integration. The sats collected exceed
   the API cost by 300-500x.
 
 Bitcoin: HD wallet, fresh address per entry payment. 1 confirmation
-  required. Strict exact amount matching (1,000 sats).
+  required. Accepts exact or overpayment (>= 1,500 sats).
 
 Seed: 12-word BIP39 mnemonic, unique to this app. Same backup pattern —
   stamp into metal plate, store separately.
@@ -99,11 +99,11 @@ Summary: 150 to 500 words. Starts shorter with fewer entries, grows toward
   Late summaries are dense and refined.
 
 Entries: immutable. Once submitted and paid for, cannot be edited or deleted.
-  The 1,000 sats made it permanent. Wrong turns and contradictions preserved.
+  The 1,500 sats made it permanent. Wrong turns and contradictions preserved.
   The AI surfaces how thinking evolved because nothing is erased. Hash chain
   depends on immutability.
 
-Wallet: sweep threshold 100,000 sats (100 entries). Below threshold, send
+Wallet: sweep threshold 25,000 sats (~17 entries). Below threshold, send
   is disabled. Above threshold, user can send to external address with
   standard validation, fee display, and confirmation.
 
@@ -162,7 +162,7 @@ WALLET VIEW:
     fee in sats and sat/vB, total in vs out)
 
 SETTINGS VIEW:
-  - Entry cost: 1,000 sats (display only, not configurable)
+  - Entry cost: 1,500 sats (display only, not configurable)
   - Auto-lock timer: user sets duration (set at initial setup)
   - Data folder location: folder picker
   - Denomination toggle: sats (default) or BTC
@@ -175,7 +175,7 @@ PAYMENT SCREEN (appears after Submit):
   - QR code (large, scannable, centered)
   - Address in text-gray-300 font-mono text-xs (click to copy,
     clipboard auto-clears after 60 seconds)
-  - "Send 1,000 sats" in warm white text-lg
+  - "Send 1,500 sats" in warm white text-lg
   - Status line:
     "Waiting for payment..."
     → "Transaction detected. Waiting for confirmation..." (copper accent)
@@ -300,7 +300,7 @@ The honest conclusion:
   and accumulates value. The Bitcoin layer makes it interesting and
   different, even if the core features could technically work without it.
 
-  The economics work: Bitcoin gates the input (1,000 sats) and AI is
+  The economics work: Bitcoin gates the input (1,500 sats) and AI is
   cheap (2 sats). The model is sustainable.
 
 ===============================================================================
@@ -369,12 +369,12 @@ The summary requires a minimum of 2 entries before it is generated. The AI
 needs at least two inputs to find patterns, connections, or tensions between
 ideas. A single entry has nothing to compare against.
 
-Entry 1: user writes, pays 1,000 sats, entry encrypted and stored. Hash
+Entry 1: user writes, pays 1,500 sats, entry encrypted and stored. Hash
   chain begins: hash(entry_1_text). No summary exists yet. Summary view
   shows: "1 of 2 entries needed. Write one more to generate your summary."
   Entropy index: not yet calculated.
 
-Entry 2: user writes, pays 1,000 sats, entry encrypted and stored. Hash
+Entry 2: user writes, pays 1,500 sats, entry encrypted and stored. Hash
   chain: hash(entry_2_text + entry_1_hash). No entropy in this hash — the
   summary is just being generated for the first time. AI processes both
   entries and produces the first summary. Entropy index calculated
@@ -541,7 +541,7 @@ section headers. Sections:
   "How to write an entry"
     Open the Write view. Type anything relevant to your project. Click
     Submit. The app shows a payment screen with a QR code and address.
-    Send 1,000 sats from any Bitcoin wallet. Wait for 1 confirmation
+    Send 1,500 sats from any Bitcoin wallet. Wait for 1 confirmation
     (~10 minutes). Your entry is encrypted, added to the hash chain,
     and the AI updates your summary.
 
@@ -584,7 +584,7 @@ section headers. Sections:
     existed in a specific order and were never altered.
 
   "Why are entries immutable?"
-    Each entry costs 1,000 sats. That payment makes it permanent. You
+    Each entry costs 1,500 sats. That payment makes it permanent. You
     cannot edit or delete entries. This preserves your full arc of
     thinking — including wrong turns, contradictions, and changed minds.
     The AI uses this complete record to show how your understanding
@@ -601,7 +601,7 @@ section headers. Sections:
 
   "How to send sats from your wallet"
     Open the Wallet view. Your accumulated sats from entry payments are
-    shown at the top. When your balance reaches 100,000 sats (100 entries),
+    shown at the top. When your balance reaches 25,000 sats (~17 entries),
     the send function becomes available. Enter a destination address and
     amount, review the fee, and confirm.
 

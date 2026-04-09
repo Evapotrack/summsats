@@ -104,6 +104,16 @@ ipcMain.handle('restore-seed', async (_e, words: string[]) => {
 // ===== API KEY =====
 ipcMain.handle('has-api-key', () => keychain.hasApiKey());
 ipcMain.handle('set-api-key', (_e, key: string) => keychain.storeApiKey(key));
+ipcMain.handle('validate-api-key', async (_e, key: string) => {
+  try {
+    const Anthropic = (await import('@anthropic-ai/sdk')).default;
+    const client = new Anthropic({ apiKey: key });
+    await client.messages.create({ model: 'claude-haiku-4-5-20251001', max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] });
+    return { valid: true };
+  } catch (err: unknown) {
+    return { valid: false, error: err instanceof Error ? err.message : 'API key validation failed' };
+  }
+});
 
 // ===== PROJECT =====
 ipcMain.handle('create-project', async (_e, config: AppConfig) => {
@@ -202,10 +212,11 @@ ipcMain.handle('commit-entry', async (_e, entryText: string) => {
   currentProject.entryCount = entryNumber;
 
   // 4. AI summary (>= 2 entries)
+  let summaryError: string | null = null;
   if (entryNumber >= 2) {
     try {
       const apiKey = keychain.getApiKey();
-      if (!apiKey) throw new Error('No API key');
+      if (!apiKey) throw new Error('No API key found — check Settings');
       const recentEntries: string[] = [];
       const startFrom = Math.max(1, entryNumber - 9);
       for (let i = startFrom; i < entryNumber; i++) {
@@ -224,9 +235,11 @@ ipcMain.handle('commit-entry', async (_e, entryText: string) => {
         currentProject.pendingSummaryUpdate = false;
       } else {
         currentProject.pendingSummaryUpdate = true;
+        summaryError = 'AI response outside word range — will retry on next entry';
       }
-    } catch {
+    } catch (err: unknown) {
       currentProject.pendingSummaryUpdate = true;
+      summaryError = err instanceof Error ? err.message : 'AI processing failed — will retry on next entry';
     }
   }
 
@@ -234,7 +247,7 @@ ipcMain.handle('commit-entry', async (_e, entryText: string) => {
   return {
     entryNumber, entryCount: currentProject.entryCount, summary: currentProject.summary,
     entropyHistory: currentProject.entropyHistory, chainHashes: currentProject.chainHashes,
-    pendingSummaryUpdate: currentProject.pendingSummaryUpdate,
+    pendingSummaryUpdate: currentProject.pendingSummaryUpdate, summaryError,
   };
 });
 

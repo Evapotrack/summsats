@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('summSats', {
   // API Key
   hasApiKey: () => ipcRenderer.invoke('has-api-key'),
   setApiKey: (key: string) => ipcRenderer.invoke('set-api-key', key),
+  validateApiKey: (key: string) => ipcRenderer.invoke('validate-api-key', key),
 
   // Project
   createProject: (config: unknown) => ipcRenderer.invoke('create-project', config),

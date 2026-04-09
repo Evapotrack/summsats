@@ -3,7 +3,7 @@ import { useSummStore } from '../store/summStore';
 import { HelpLink } from './HelpLink';
 
 export function SummaryView() {
-  const { summary, entryCount, entropyHistory, pendingSummaryUpdate } = useSummStore();
+  const { summary, entryCount, entropyHistory, pendingSummaryUpdate, summaryError } = useSummStore();
   const latestEntropy = entropyHistory.length > 0 ? entropyHistory[entropyHistory.length - 1] : null;
   const [includeEntries, setIncludeEntries] = React.useState(false);
 
@@ -31,7 +31,7 @@ export function SummaryView() {
 
       {pendingSummaryUpdate && (
         <div className="mb-4 px-3 py-2 bg-gray-900 rounded-lg text-amber-600 text-xs">
-          Summary pending update — AI processing will retry on next entry.
+          {summaryError || 'Summary pending update — AI processing will retry on next entry.'}
         </div>
       )}
 
